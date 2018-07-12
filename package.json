@@ -1,0 +1,23 @@
+{
+  "name": "heartsweb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beauxq/heartsweb.git"
+  },
+  "author": "beauxq",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/beauxq/heartsweb/issues"
+  },
+  "homepage": "https://github.com/beauxq/heartsweb#readme",
+  "dependencies": {
+    "npm": "^6.1.0",
+    "typescript": "^2.9.2"
+  }
+}
