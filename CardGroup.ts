@@ -17,22 +17,59 @@ class CardGroup {
         return this.cards[suit].length;
     }
 
-    public forEach(callback: Function) {
+    private getSuitAndIndex(fullIndex: number) {
+        let suit = 0;
+        while (suit < 4 && fullIndex >= this.cards[suit].length) {
+            fullIndex -= this.cards[suit].length;
+            suit += 1;
+        }
+        if (suit < 4) {
+            return {
+                suit: suit,
+                index: fullIndex
+            };
+        }
+        return null;
+
+    }
+
+    public at(index: number): Card|null {
+        const suitAndIndex = this.getSuitAndIndex(index);
+        if (suitAndIndex)
+            return this.cards[suitAndIndex.suit][suitAndIndex.index];
+        return null;
+    }
+
+    public forEach(callback: (card: Card) => void) {
         this.cards.forEach((suit) => {
             suit.forEach((card) => {callback(card)});
         });
+
     }
 
-    public remove(card: Card) {
-        const arrayToRemoveFrom = this.cards[card.suit];
+    public remove(cardOrIndex: Card|number) {
+        let indexInSuitArray: number, arrayToRemoveFrom: Card[];
 
-        const index = Card.find(arrayToRemoveFrom, card);
+        if (cardOrIndex instanceof Card) {
+            arrayToRemoveFrom = this.cards[cardOrIndex.suit];
 
-        if (index === -1) {
-            return;
+            indexInSuitArray = Card.find(arrayToRemoveFrom, cardOrIndex);
+
+            if (indexInSuitArray === -1) {
+                return;
+            }
+        }
+        else {  // cardOrIndex is index
+            const suitAndIndex = this.getSuitAndIndex(cardOrIndex);
+            if (! suitAndIndex) {
+                return;
+            }
+
+            arrayToRemoveFrom = this.cards[suitAndIndex.suit];
+            indexInSuitArray = suitAndIndex.index;
         }
 
-        arrayToRemoveFrom.splice(index, 1);
+        arrayToRemoveFrom.splice(indexInSuitArray, 1);
     }
 
     public insert(card: Card) {
@@ -64,6 +101,21 @@ class CardGroup {
                 suitArray.push(new Card(i, suitNumber));
             }
         });
+    }
+
+    public dealOne() {
+        const index = Math.floor(Math.random() * this.length());
+        const toReturn = this.at(index);
+        this.remove(index);
+        return toReturn;
+    }
+
+    public getSuit(suit: number) {
+        return this.cards[suit];
+    }
+
+    public slice(): Card[] {
+        return this.cards[0].concat(this.cards[1], this.cards[2], this.cards[3]);
     }
 }
 
