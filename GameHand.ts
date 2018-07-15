@@ -42,6 +42,14 @@ class GameHand {
         return this.playedCards;
     }
 
+    public getPlayedCardCount() {
+        return this.playedCardCount;
+    }
+
+    public getTrickLeader() {
+        return this.trickLeader;
+    }
+
     public getPassedCardsToPlayer(player) {
         return this.passedCardsToPlayer[player];
     }
@@ -101,6 +109,7 @@ class GameHand {
     }
 
     public resetTrick() {
+        this.playedCards = [null, null, null, null];
         this.playedCardCount = 0;
         this.trickLeader = this.whoseTurn;
     }
@@ -115,25 +124,24 @@ class GameHand {
         this.playedCards[this.whoseTurn] = card;
         ++this.playedCardCount;
 
-        // notify ai:
-        // if points played this trick
-        // remove from unknown cards of all players
-        // remove from passed cards
-        // is player showing they have none of a suit?
-        // showing that they only have hearts?
-
         if (this.takesLead(card)) {
             this.trickLeader = this.whoseTurn;
         }
 
+        let showingOnlyHearts = false;
         if (card.suit === Card.HEARTS) {
+            if (this.playedCardCount === 1 && ! this.heartsBroken) {
+                showingOnlyHearts = true;
+            }
             this.heartsBroken = true;  // TODO: alternate rule q of spades breaks hearts?
         }
+
+        // observer here
 
         this.whoseTurn = (this.whoseTurn + 1) % 4;
     }
 
-    private pointsFor(card: Card) {
+    public pointsFor(card: Card) {
         return (card.suit === Card.HEARTS) ? 1 : (
             (card.value === 12 && card.suit === Card.SPADES) ? 13 : 0
         );
