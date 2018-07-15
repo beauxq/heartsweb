@@ -302,6 +302,152 @@ class AI implements HandObserver {
             }
         }
     }
+
+    public staticPlayAI(): Card {
+        const validChoices = this.gameHand.findValidChoices();
+
+        if (this.gameHand.getPlayedCardCount() > 0) {  // I'm not leading the trick
+            const leadCard = this.gameHand.getPlayedCards()[this.gameHand.getTrickLeader()];
+            if (validChoices[0].suit === leadCard.suit) {  // I have to follow suit
+                if (validChoices[0].value < leadCard.value) {  // I can play under, avoid taking it
+                    // find highest card I can avoid taking it with
+                    for (let i = validChoices.length - 1; i >= 0; --i) {
+                        if (validChoices[i].value < leadCard.value) {  // this is highest card I can avoid taking it with
+                            // Q of Spades instead of K of Spades
+                            if (validChoices[i].value === 13 &&  // king
+                                validChoices[i].suit === Card.SPADES &&  // of spades
+                                i > 0 &&  // I have a lower spade
+                                validChoices[i-1].value === 12  // and it's the queen
+                            ) {
+                                return validChoices[i-1];
+                            }
+                            else {  // not k and q of spades
+                                return validChoices[i];  // highest card I can avoid taking it with
+                            }
+                        }
+                    }
+                }
+                else {  // I can't play under
+                    if (this.gameHand.getPlayedCardCount() < 3) {  // someone else will play after me
+                        if (leadCard.suit === Card.SPADES) {  // spades
+                            if (validChoices[0].value === 12 &&  // queen
+                                validChoices.length > 1) {  // and I have somethign else
+                                return validChoices[1];
+                            }
+                            else {  // not queen or I don't have anything else
+                                return validChoices[0];
+                            }
+                        }
+                        else {  // not spades
+                            return validChoices[0];
+                        }
+                    }
+                    else {  // no one else plays after me
+                        const highestCard = validChoices[validChoices.length -1];
+                        if (leadCard.suit === Card.SPADES) {  // spades
+                            if (highestCard.value === 12 &&  // queen
+                                validChoices.length > 1  // and I have something else
+                            ) {
+                                return validChoices[validChoices.length - 2];  // highest except queen
+                            }
+                            else {  // not queen or I don't ahve anything is
+                                return highestCard;
+                            }
+                        }
+                        else {  // not spades
+                            return highestCard;
+                        }
+                    }
+                }
+            }
+            else {  // don't have to follow suit (and not leading)
+                // GET RID OF THE QUEEN!!
+                // (play lowest of high spades)
+                const highSpades: Card[] = [];  // ordered from highest to lowest
+                for (let i = validChoices.length - 1; i >= 0; --i) {
+                    if (validChoices[i].suit !== Card.SPADES) {
+                        continue;
+                    }
+                    if (validChoices[i].value > 11) {  // higher than jack
+                        highSpades.push(validChoices[i]);
+                    }
+                    else {  // spade, lower than queen
+                        break;
+                    }
+                }
+                if (highSpades.length) {  // I have high spades
+                    return highSpades[highSpades.length - 1];  // play lowest high spade
+                }
+                else {  // I don't have any high spades
+                    // play the highest card in the suit of the highest lowest card of its suit
+                    // (yes, you understood that)
+                    // algorithm:
+                    // look at the lowest card in each suit
+                    // which one of those is the highest?
+                    // what's the suit of that card?
+                    // play the highest card in that suit
+
+                    let currentSuit = validChoices[0].suit;
+                    let sothlcois = currentSuit;  // suit of the highest lowest card of its suit
+                    let lowestValue = validChoices[0].value;  // in that suit
+
+                    for (let i = 1; i < validChoices.length; ++i) {
+                        if (validChoices[i].suit !== currentSuit) {  // moved into new suit
+                            currentSuit = validChoices[i].suit;
+
+                            if (validChoices[i].value // lowest value in this suit
+                                > lowestValue  // found one higher
+                            ) {
+                                sothlcois = currentSuit;
+                                lowestValue = validChoices[i].value;
+                            }
+                        }
+                    }
+                    // now we know the suit of the highest lowest card of its suit
+                    // since we don't have any high spades, any card of this suit should be a valid choice
+                    // so we can pull it out of the hand (instead of the valid_choices)
+                    const cardsInSuit = this.gameHand.getHand(this.gameHand.getWhoseTurn()).getSuit(sothlcois);
+                    return cardsInSuit[cardsInSuit.length - 1];
+                }
+            }
+        }
+        else {  // I lead
+            const nonHighSpades = validChoices.filter((card) => {
+                return (card.value < 12 || card.suit !== Card.SPADES);
+            });
+            if (nonHighSpades.length) {
+                // found something that's not high spade
+                // random (without high spades)
+                return nonHighSpades[Math.floor(Math.random() * nonHighSpades.length)];
+            }
+            // else only high spades available
+            return validChoices[0];  // play lowest high spade
+        }
+/*
+            let foundNonHighSpade = false;
+            for (let i = 0; i < validChoices.length; --i) {
+                if (validChoices[i].value < 12 || validChoices[i].suit !== Card.SPADES) {
+                    // found something that's not high spade
+                    foundNonHighSpade = true;
+                    break;
+                }
+            }
+            if (! foundNonHighSpade) {  // only high spades available
+                return validChoices[0];  // play lowest high spade
+            }
+            // random, but not high spade
+            let lengthWOHighSpades = validChoices.length;
+            let randomIndex;
+            while (true) {
+                randomIndex = Math.floor(Math.random() * lengthWOHighSpades);
+                if (validChoices[randomIndex].value > 11 && validChoices[randomIndex].suit === Card.SPADES) {  // high spade
+                    // swap high spade into last spot
+
+                }
+            }
+        }
+        */
+    }
 }
 
 export default AI;

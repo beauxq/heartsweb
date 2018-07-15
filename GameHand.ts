@@ -1,5 +1,6 @@
 import CardGroup from "./CardGroup";
 import Card from "./Card";
+import HandObserver from "./HandObserver";
 
 class GameHand {
     private hands: CardGroup[] = [new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()];
@@ -13,6 +14,12 @@ class GameHand {
     private trickLeader: number;
     private whoseTurn: number;
     private heartsBroken: boolean = false;
+
+    private observerList: HandObserver[] = [];
+
+    public registerObserver(ob: HandObserver) {
+        this.observerList.push(ob);
+    }
 
     public getWhoseTurn() {
         return this.whoseTurn;
@@ -70,6 +77,8 @@ class GameHand {
         }
         this.passCount = 0;
         this.heartsBroken = false;
+
+        this.observerList.forEach((ob) => { ob.resetHand(); });
     }
 
     public dealHands() {
@@ -86,6 +95,8 @@ class GameHand {
                 }
             }
         }
+
+        this.observerList.forEach((ob) => { ob.dealHands(); });
     }
 
     public pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
@@ -95,6 +106,8 @@ class GameHand {
         });
 
         ++this.passCount;
+
+        this.observerList.forEach((ob) => { ob.pass(fromPlayer, toPlayer, cards); });
     }
 
     public receivePassedCards() {
@@ -106,12 +119,16 @@ class GameHand {
                 }
             });
         }
+
+        this.observerList.forEach((ob) => { ob.receivePassedCards(); });
     }
 
     public resetTrick() {
         this.playedCards = [null, null, null, null];
         this.playedCardCount = 0;
         this.trickLeader = this.whoseTurn;
+
+        this.observerList.forEach((ob) => { ob.resetTrick(); });
     }
 
     private takesLead(card: Card) {
@@ -136,7 +153,8 @@ class GameHand {
             this.heartsBroken = true;  // TODO: alternate rule q of spades breaks hearts?
         }
 
-        // observer here
+        // observer here before whoseTurn is changed
+        this.observerList.forEach((ob) => { ob.seeCardPlayed(card, this.whoseTurn, showingOnlyHearts); });
 
         this.whoseTurn = (this.whoseTurn + 1) % 4;
     }
