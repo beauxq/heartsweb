@@ -7,7 +7,7 @@ class AI implements HandObserver {
     private pointsPlayedThisTrick: boolean = false;
     private shootMoonPossible: boolean = true;
     private unknownCards: CardGroup = new CardGroup();
-    private playerSeenVoidInSuits: boolean[][];
+    private playerSeenVoidInSuits: boolean[][] = [];
 
     private cardsIPassed: Card[] = [];  // and not played yet, removed from here when they are seen played
     private gameHand: GameHand;
@@ -30,7 +30,7 @@ class AI implements HandObserver {
         const whomIPassedTo = (this.whoAmI + passingDirection) % 4;
         spaceRemainingIn[whomIPassedTo] -= this.cardsIPassed.length;
 
-        function nonFullHands(player) { return spaceRemainingIn[player] > 0 };
+        function nonFullHands(player: number) { return spaceRemainingIn[player] > 0 };
 
         const handsThatAllowSuit: boolean[][] = [];  // first index is suit, second is player
         for (let suit = 0; suit < 4; ++suit) {
@@ -42,7 +42,7 @@ class AI implements HandObserver {
             ]);
         }
 
-        const allowSuitAndNonFull = [];  // intersection of non-full-hands with hands that allow this suit
+        const allowSuitAndNonFull: number[] = [];  // intersection of non-full-hands with hands that allow this suit
         this.unknownCards.forEach((thisCard) => {
             allowSuitAndNonFull.length = 0;
             handsThatAllowSuit[thisCard.suit].forEach((allowThisSuit, player) => {
@@ -120,7 +120,7 @@ class AI implements HandObserver {
                                              and must have some suit that is allowed in the second hand. */
 
                     const fullAndAllows = handsThatAllowSuit[thisCard.suit].indexOf(true);  // "1st hand"
-                    let nonFull;  // "2nd hand"
+                    let nonFull: number = 0;  // "2nd hand"
                     for (let player = 0; player < 4; ++player) {
                         if (nonFullHands(player)) {
                             nonFull = player;
@@ -201,6 +201,7 @@ class AI implements HandObserver {
     constructor(gameHand: GameHand, whoAmI: number) {
         this.gameHand = gameHand;
         this.whoAmI = whoAmI;
+        this.resetHand();  // just to be safe
     }
 
     public resetHand() {
@@ -326,6 +327,8 @@ class AI implements HandObserver {
                             }
                         }
                     }
+                    console.log("ERROR: should never get here");
+                    return validChoices[0];  // just so compiler doesn't complain about not returning a card
                 }
                 else {  // I can't play under
                     if (this.gameHand.getPlayedCardCount() < 3) {  // someone else will play after me
@@ -442,7 +445,7 @@ class AI implements HandObserver {
                 randomIndex = Math.floor(Math.random() * lengthWOHighSpades);
                 if (validChoices[randomIndex].value > 11 && validChoices[randomIndex].suit === Card.SPADES) {  // high spade
                     // swap high spade into last spot
-
+                    // I stopped here and decided to use filter instead
                 }
             }
         }

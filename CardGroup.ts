@@ -103,10 +103,11 @@ class CardGroup {
         });
     }
 
-    public dealOne() {
+    public dealOne(): Card {
         const index = Math.floor(Math.random() * this.length());
         const toReturn = this.at(index);
         this.remove(index);
+        // @ts-ignore trust me, it will not be null
         return toReturn;
     }
 

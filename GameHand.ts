@@ -2,6 +2,8 @@ import CardGroup from "./CardGroup";
 import Card from "./Card";
 import HandObserver from "./HandObserver";
 
+const nullCard = new Card(0, 0);
+
 class GameHand {
     private hands: CardGroup[] = [new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()];
     private scores: number[] = [0, 0, 0, 0];
@@ -9,10 +11,10 @@ class GameHand {
     private passCount: number = 0;
 
     // trick
-    private playedCards: Card[] = [null, null, null, null];
+    private playedCards: Card[] = [nullCard, nullCard, nullCard, nullCard];
     private playedCardCount: number = 0;
-    private trickLeader: number;
-    private whoseTurn: number;
+    private trickLeader: number = 0;
+    private whoseTurn: number = 0;
     private heartsBroken: boolean = false;
 
     private observerList: HandObserver[] = [];
@@ -25,11 +27,11 @@ class GameHand {
         return this.whoseTurn;
     }
 
-    public getHand(player) {
+    public getHand(player: number) {
         return this.hands[player];
     }
 
-    public getScore(player) {
+    public getScore(player: number) {
         return this.scores[player];
     }
 
@@ -57,7 +59,7 @@ class GameHand {
         return this.trickLeader;
     }
 
-    public getPassedCardsToPlayer(player) {
+    public getPassedCardsToPlayer(player: number) {
         return this.passedCardsToPlayer[player];
     }
 
@@ -124,7 +126,7 @@ class GameHand {
     }
 
     public resetTrick() {
-        this.playedCards = [null, null, null, null];
+        this.playedCards = [nullCard, nullCard, nullCard, nullCard];
         this.playedCardCount = 0;
         this.trickLeader = this.whoseTurn;
 
@@ -234,12 +236,13 @@ class GameHand {
                     return hand.slice();
                 }
                 // hearts in hand, play anything not hearts
-                const validChoices = [];
+                const validChoices: Card[] = [];
                 hand.forEach((card) => {
                     if (card.suit !== Card.HEARTS) {
                         validChoices.push(card);
                     }
                 });
+                return validChoices;
             }
             else {  // not leading trick
                 if (hand.length(this.playedCards[this.trickLeader].suit)) {  // have suit that is lead
