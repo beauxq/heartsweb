@@ -4,6 +4,17 @@ import HandObserver from "./HandObserver";
 
 const nullCard = new Card(0, 0);
 
+/**
+ * each hand, call these in this order:
+ * resetHand();
+ * dealHands();
+ * pass(fromPlayer, toPlayer, passedCards);
+ * receivePassedCards();  // TODO: return which cards (for UI)
+ * resetTrick();
+ * playCard(card);  // TODO: return hearts broken (for UI)
+ * endTrick();  // TODO: returns who took the trick? (for UI)
+ * endHand();  // returns who shot the moon
+ */
 class GameHand {
     private hands: CardGroup[] = [new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()];
     private scores: number[] = [0, 0, 0, 0];

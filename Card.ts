@@ -34,6 +34,49 @@ class Card {
         this.value = value;
         this.suit = suit;
     }
+
+    public str() {
+        let to_return: string;
+        switch (this.value)
+        {
+        case 1:
+        case 14:
+            to_return = "Ace of ";
+            break;
+        case 11:
+            to_return = "Jack of ";
+            break;
+        case 12:
+            to_return = "Queen of ";
+            break;
+        case 13:
+            to_return = "King of ";
+            break;
+        default:
+            to_return = this.value.toString();
+            to_return += " of ";
+        }
+
+        switch (this.suit)
+        {
+        case Card.CLUBS:
+            to_return += "Clubs";
+            break;
+        case Card.DIAMONDS:
+            to_return += "Diamonds";
+            break;
+        case Card.SPADES:
+            to_return += "Spades";
+            break;
+        case Card.HEARTS:
+            to_return += "Hearts";
+            break;
+        default:
+            to_return += "UNKNOWN SUIT";
+        }
+
+        return to_return;
+    }
 }
 
 export default Card;
