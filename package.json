@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/beauxq/heartsweb#readme",
   "dependencies": {
+    "@types/readline-sync": "^1.4.3",
+    "@types/node": "^10.5.2",
     "npm": "^6.1.0",
+    "readline-sync": "^1.4.9",
     "typescript": "^2.9.2"
   }
 }

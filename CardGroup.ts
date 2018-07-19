@@ -40,9 +40,13 @@ class CardGroup {
         return null;
     }
 
-    public forEach(callback: (card: Card) => void) {
+    public forEach(callback: (card: Card, index: Number) => void) {
+        let index = 0;
         this.cards.forEach((suit) => {
-            suit.forEach((card) => {callback(card)});
+            suit.forEach((card) => {
+                callback(card, index);
+                ++index;
+            });
         });
 
     }
