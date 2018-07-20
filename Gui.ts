@@ -10,6 +10,10 @@ class Gui {
     draw() {
         console.log("gui draw here");
     }
+
+    click(e: MouseEvent) {
+        console.log("gui click: ", e.x, e.y);
+    }
 }
 
 export default Gui;
