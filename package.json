@@ -22,7 +22,6 @@
     "@types/readline-sync": "^1.4.3",
     "npm": "^6.1.0",
     "readline-sync": "^1.4.9",
-    "ts-loader": "^4.4.2",
     "typescript": "^2.9.2"
   },
   "devDependencies": {
