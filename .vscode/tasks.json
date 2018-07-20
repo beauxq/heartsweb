@@ -16,6 +16,11 @@
             "problemMatcher": [
                 "$eslint-stylish"
             ]
+        },
+        {
+            "type": "shell",
+            "label": "webpack",
+            "command": "npx webpack --config webpack.config.js"
         }
     ]
 }
