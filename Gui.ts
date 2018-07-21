@@ -13,6 +13,7 @@ class Gui implements HandObserver {
     static assetWidth: number = 112;
 
     static verticalPadding = 5;
+    static spaceAboveHand = 20;
 
     private context: CanvasRenderingContext2D;
     private assets: HTMLImageElement;
@@ -183,7 +184,9 @@ class Gui implements HandObserver {
     private drawCardsToPass() {
         const rowY =
             this.context.canvas.height -
-            ((this.vertical ? 3 : 2) * (this.cardHeight + Gui.verticalPadding) + 20);  // 20 is space for score or something
+            ((this.vertical ? 3 : 2) *
+             (this.cardHeight + Gui.verticalPadding) +
+             Gui.spaceAboveHand);  // space for score or something
         let x = this.context.canvas.width / 2 - (1.5 * this.cardWidth + 10);
         this.cardsToPass.forEach((card) => {
             this.drawCard(card, x, rowY);
@@ -191,6 +194,50 @@ class Gui implements HandObserver {
                                                () => { this.removeFromPass(card); }));
             x += this.cardWidth + 10;
         });
+    }
+
+    /**
+     * 
+     * @param x 
+     * @param y 
+     * @param size 
+     * @param direction number of quadrants clockwise from right
+     */
+    private drawArrow(x: number, y: number, size: number, direction: number) {
+        this.context.fillStyle = "orange";
+
+        this.context.translate(x + size/2, y + size/2);
+        this.context.rotate(direction * Math.PI / 2);
+        
+        this.context.beginPath();
+        this.context.moveTo(size / 2, 0);
+        this.context.lineTo(0, 0 - size/2);
+        this.context.lineTo(0, 0 - size/4);
+        this.context.lineTo(0 - size/2, 0 - size/4);
+        this.context.lineTo(0 - size/2, size / 4);
+        this.context.lineTo(0, size / 4);
+        this.context.lineTo(0, size / 2);
+        this.context.fill();
+
+        // undo rotation and translation
+        this.context.rotate(0 - direction * Math.PI / 2);
+        this.context.translate(0 - (x + size/2), 0 - (y + size/2));
+    }
+
+    private drawPassButton() {
+        const size = 80;
+        const x = this.context.canvas.width / 2 - (size / 2);
+        const y =
+            this.context.canvas.height -
+            ((this.vertical ? 3 : 2) *
+             (this.cardHeight + Gui.verticalPadding) +
+             Gui.spaceAboveHand +
+             Gui.verticalPadding +
+             size);
+        
+        this.drawArrow(x, y, size, this.game.getPassingDirection() + 1);
+        this.clickables.push(new Clickable(x, y, size, size,
+                             () => { console.log("clicked pass button"); }));
     }
 
     public draw() {
@@ -203,6 +250,10 @@ class Gui implements HandObserver {
             //passing
             this.drawHand((card: Card) => { this.addToPass(card); });
             this.drawCardsToPass();
+
+            if (this.cardsToPass.length() === 3) {
+                this.drawPassButton();
+            }
         }
         else {
             this.drawHand((card: Card) => { this.playCard(card); });
@@ -214,7 +265,7 @@ class Gui implements HandObserver {
         this.clickables.some((c) => {
             if (c.contains(e.x, e.y)) {
                 c.onClick();
-                return true;
+                return true;  // only click on one thing at a time
             }
             return false;
         });
