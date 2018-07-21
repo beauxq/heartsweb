@@ -6,7 +6,8 @@ class Card {
     public static SUIT_COUNT = 4;
 
     /**
-     * binary search a sorted Card array for a card
+     * binary search a sorted Card array for a card,
+     * return index, -1 if not found
      * @param sortedArray 
      * @param card 
      * @param beginIndex 

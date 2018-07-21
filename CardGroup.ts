@@ -40,7 +40,7 @@ class CardGroup {
         return null;
     }
 
-    public forEach(callback: (card: Card, index: Number) => void) {
+    public forEach(callback: (card: Card, index: number) => void) {
         let index = 0;
         this.cards.forEach((suit) => {
             suit.forEach((card) => {
@@ -48,7 +48,21 @@ class CardGroup {
                 ++index;
             });
         });
+    }
 
+    /**
+     * returns index, -1 if not present
+     * @param card 
+     */
+    public find(card: Card): number {
+        let indexToReturn = Card.find(this.cards[card.suit], card);
+        if (indexToReturn === -1) {
+            return -1;
+        }
+        for (let suit = 0; suit < card.suit; ++suit) {
+            indexToReturn += this.cards[suit].length;
+        }
+        return indexToReturn;
     }
 
     public remove(cardOrIndex: Card|number) {
