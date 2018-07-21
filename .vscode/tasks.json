@@ -20,7 +20,8 @@
         {
             "type": "shell",
             "label": "webpack",
-            "command": "npx webpack --config webpack.config.js"
+            "command": "npx webpack --config webpack.config.js",
+            "problemMatcher": []
         }
     ]
 }
