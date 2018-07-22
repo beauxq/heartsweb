@@ -30,6 +30,34 @@ class GameHand {
 
     private observerList: HandObserver[] = [];
 
+    constructor();
+    constructor(gameHand: GameHand);
+    constructor(gameHand?: GameHand) {
+        if (gameHand) {
+            // copy constructor
+            this.hands[0] = new CardGroup(gameHand.hands[0]);
+            this.hands[1] = new CardGroup(gameHand.hands[1]);
+            this.hands[2] = new CardGroup(gameHand.hands[2]);
+            this.hands[3] = new CardGroup(gameHand.hands[3]);
+            this.scores = gameHand.scores;
+            for (let player = 0; player < 4; ++player) {
+                gameHand.passedCardsToPlayer[player].forEach((card) => {
+                    this.passedCardsToPlayer[player].push(new Card(card));
+                });
+            }
+            this.passCount = gameHand.passCount;
+            this.playedCards[0] = new Card(gameHand.playedCards[0]);
+            this.playedCards[1] = new Card(gameHand.playedCards[1]);
+            this.playedCards[2] = new Card(gameHand.playedCards[2]);
+            this.playedCards[3] = new Card(gameHand.playedCards[3]);
+            this.playedCardCount = gameHand.playedCardCount;
+            this.trickLeader = gameHand.trickLeader;
+            this.whoseTurn = gameHand.whoseTurn;
+            this.heartsBroken = gameHand.heartsBroken;
+            // don't copy observer list
+        }
+    }
+
     public registerObserver(ob: HandObserver) {
         this.observerList.push(ob);
     }

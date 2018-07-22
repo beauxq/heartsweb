@@ -5,6 +5,18 @@ import AI from "./AI";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
 
+function workerFunction() {
+    addEventListener('message', (message) => {
+        console.log('in webworker', message);
+        if (message.data.length) {
+            // AI array
+            const ai1 = new AI(message.data[1]);
+            console.log(ai1.staticPlayAI());
+        }
+        // postMessage('this is the response ', "");
+    });
+}
+
 class Gui implements HandObserver {
     // coordinates from image file
     static suitAssetYs: number[] = [0, 528, 352, 176];
@@ -14,6 +26,8 @@ class Gui implements HandObserver {
 
     static verticalPadding = 5;
     static spaceAboveHand = 20;
+
+    private worker: Worker;
 
     private context: CanvasRenderingContext2D;
     private assets: HTMLImageElement;
@@ -27,6 +41,7 @@ class Gui implements HandObserver {
     private vertical: boolean = false;
 
     private cardsToPass: CardGroup = new CardGroup();
+    private humanPlayerPassed: boolean = false;
 
     public resize() {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
@@ -38,6 +53,12 @@ class Gui implements HandObserver {
     constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement) {
         this.context = context;
         this.assets = assets;
+
+        this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
+        this.worker.addEventListener('message', (message) => {
+            console.log("received message from worker:");
+            console.log(message);
+        });
 
         this.game = new Game();
         this.ais = [
@@ -52,9 +73,19 @@ class Gui implements HandObserver {
             this.game.hand.registerObserver(this.ais[player] as AI);
         }
 
+        // TODO: load saved game
         this.game.reset();
         this.game.hand.resetHand();
         this.game.hand.dealHands();
+        const cl = JSON.parse(JSON.stringify(this.ais, (key, value) => {
+            if (key === "observerList") {
+                return undefined;
+            }
+            return value;
+        }))
+        console.log("clone:");
+        console.log(cl);
+        this.worker.postMessage(cl);
     }
 
     /**
@@ -237,7 +268,14 @@ class Gui implements HandObserver {
         
         this.drawArrow(x, y, size, this.game.getPassingDirection() + 1);
         this.clickables.push(new Clickable(x, y, size, size,
-                             () => { console.log("clicked pass button"); }));
+                             () => { this.passButtonClick(); }));
+    }
+
+    private passButtonClick() {
+        this.game.hand.pass(0, this.game.getPassingDirection(), this.cardsToPass.slice());
+        this.cardsToPass.clear();
+        this.humanPlayerPassed = true;
+        this.draw();
     }
 
     public draw() {
@@ -246,7 +284,7 @@ class Gui implements HandObserver {
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.clickables.length = 0;
 
-        if (this.game.hand.getPassCount() < 4) {  // passing needs to be done
+        if (! this.humanPlayerPassed) {  // passing needs to be done
             //passing
             this.drawHand((card: Card) => { this.addToPass(card); });
             this.drawCardsToPass();
@@ -254,6 +292,9 @@ class Gui implements HandObserver {
             if (this.cardsToPass.length() === 3) {
                 this.drawPassButton();
             }
+        }
+        else if (this.game.hand.getPassCount() < 4) {
+            this.drawHand(() => { console.log("clicked on card when human already passed"); });
         }
         else {
             this.drawHand((card: Card) => { this.playCard(card); });
@@ -275,15 +316,23 @@ class Gui implements HandObserver {
         // this.draw();
     }
     dealHands(): void {
+        this.humanPlayerPassed = false;
         this.draw();
     }
     receivePassedCards(): void {
+        // TODO: show passed cards
         this.draw();
     }
     resetTrick(): void {
         this.draw();
     }
     pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
+        if (fromPlayer === 0) {
+            this.humanPlayerPassed = true;
+        }
+        if (this.game.hand.getPassCount() === 4) {
+            this.game.hand.receivePassedCards();
+        }
         this.draw();
     }
     seeCardPlayed(card: Card, byPlayer: Number, showingOnlyHearts: boolean) {

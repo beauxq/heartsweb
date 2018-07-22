@@ -198,10 +198,28 @@ class AI implements HandObserver {
         return speculatedHands;
     }
 
-    constructor(gameHand: GameHand, whoAmI: number) {
-        this.gameHand = gameHand;
-        this.whoAmI = whoAmI;
-        this.resetHand();  // just to be safe
+    constructor(gameHand: GameHand, whoAmI: number);
+    constructor(ai: AI);
+    constructor(gameHand: GameHand|AI, whoAmI?: number) {
+        if (gameHand.hasOwnProperty("whoAmI")) {
+            // copy constructor
+            const ai = gameHand as AI;
+            this.pointsPlayedThisTrick = ai.pointsPlayedThisTrick;
+            this.shootMoonPossible = ai.shootMoonPossible;
+            this.unknownCards = new CardGroup(ai.unknownCards);
+            this.playerSeenVoidInSuits = ai.playerSeenVoidInSuits;
+            this.cardsIPassed = [];
+            ai.cardsIPassed.forEach((card) => {
+                this.cardsIPassed.push(new Card(card));
+            });
+            this.gameHand = new GameHand(ai.gameHand);
+            this.whoAmI = ai.whoAmI;
+        }
+        else {
+            this.gameHand = gameHand as GameHand;
+            this.whoAmI = whoAmI as number;
+            this.resetHand();  // just to be safe
+        }
     }
 
     public resetHand() {

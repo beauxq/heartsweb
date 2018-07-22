@@ -5,6 +5,19 @@ class CardGroup {
         [], [], [], []  // one for each suit
     ];
 
+    constructor();
+    constructor(cardGroup: CardGroup);
+    constructor(cardGroup?: CardGroup) {
+        if (cardGroup) {
+            // copy constructor
+            cardGroup.cards.forEach((suitArray, suitIndex) => {
+                suitArray.forEach((card) => {
+                    this.cards[suitIndex].push(new Card(card));
+                });
+            });
+        }
+    }
+
     /**
      * the number of cards in given suit
      *  - if no suit given, the number of cards in all suits

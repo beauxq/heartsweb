@@ -31,9 +31,19 @@ class Card {
     public value: number;
     public suit: number;
 
-    constructor(value: number, suit: number) {
-        this.value = value;
-        this.suit = suit;
+    constructor(card: Card);
+    constructor(value: number, suit: number);
+    constructor(value: number|Card, suit?: number) {
+        if (value.hasOwnProperty("suit")) {
+            // copy constructor
+            const card = value as Card;
+            this.value = card.value;
+            this.suit = card.suit;
+        }
+        else {
+            this.value = value as number;
+            this.suit = suit as number;
+        }
     }
 
     public str() {
