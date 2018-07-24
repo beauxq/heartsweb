@@ -36,12 +36,41 @@ class Gui implements HandObserver {
 
     private cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
+    private receivedCards: Card[] = [];
+
+    private showingPassedCards: boolean = false;
+    private waiting: boolean = false;
+    private clickSkips: boolean = true;
+    private currentWait: any = null;
 
     public resize() {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
         this.cardWidth = this.context.canvas.width / (this.vertical ? 7.6 : 13.7 );
         this.cardHeight = this.cardWidth * Gui.assetHeight / Gui.assetWidth;
         console.log("card width set to", this.cardWidth);
+    }
+
+    private workerMessagePassing() {
+        const cl = JSON.parse(JSON.stringify(this.ais, (key, value) => {
+            if (key === "observerList") {
+                return undefined;
+            }
+            return value;
+        }));
+        console.log("clone:");
+        console.log(cl);
+        this.worker.postMessage(cl);
+    }
+
+    private workerMessagePlay() {
+        console.log("sending play message to worker, turn:", this.game.hand.getWhoseTurn());
+        const cl = JSON.parse(JSON.stringify(this.ais[this.game.hand.getWhoseTurn()], (key, value) => {
+            if (key === "observerList") {
+                return undefined;
+            }
+            return value;
+        }));
+        this.worker.postMessage(cl);
     }
 
     constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement) {
@@ -53,6 +82,7 @@ class Gui implements HandObserver {
         this.worker.addEventListener('message', (message) => {
             console.log("received message from worker:");
             console.log(message);
+            this.handleMessage(message.data);
         });
 
         this.game = new Game();
@@ -72,15 +102,7 @@ class Gui implements HandObserver {
         this.game.reset();
         this.game.hand.resetHand();
         this.game.hand.dealHands();
-        const cl = JSON.parse(JSON.stringify(this.ais, (key, value) => {
-            if (key === "observerList") {
-                return undefined;
-            }
-            return value;
-        }))
-        console.log("clone:");
-        console.log(cl);
-        this.worker.postMessage(cl);
+        this.workerMessagePassing();
     }
 
     /**
@@ -108,6 +130,16 @@ class Gui implements HandObserver {
      */
     private playCard(card:Card) {
         console.log("clicked to play", card.str());
+        const validChoices = this.game.hand.findValidChoices();
+        if (validChoices.some((validCard) => {
+                if (card.value === validCard.value && card.suit === validCard.suit) {
+                    return true;
+                }
+                return false;
+            })
+        ) {
+            this.game.hand.playCard(card);
+        }
     }
 
     drawCard(card: Card, x: number, y: number) {
@@ -207,12 +239,15 @@ class Gui implements HandObserver {
         });
     }
 
+    private yForBottomMiddle() {
+        return this.context.canvas.height -
+               ((this.vertical ? 3 : 2) *
+                (this.cardHeight + Gui.verticalPadding) +
+                Gui.spaceAboveHand);  // space for score or something
+    }
+
     private drawCardsToPass() {
-        const rowY =
-            this.context.canvas.height -
-            ((this.vertical ? 3 : 2) *
-             (this.cardHeight + Gui.verticalPadding) +
-             Gui.spaceAboveHand);  // space for score or something
+        const rowY = this.yForBottomMiddle();
         let x = this.context.canvas.width / 2 - (1.5 * this.cardWidth + 10);
         this.cardsToPass.forEach((card) => {
             this.drawCard(card, x, rowY);
@@ -220,6 +255,24 @@ class Gui implements HandObserver {
                                                () => { this.removeFromPass(card); }));
             x += this.cardWidth + 10;
         });
+    }
+
+    private drawPlayedCards() {
+        const y = this.yForBottomMiddle();
+        const x = (this.context.canvas.width - this.cardWidth) / 2;
+        const playedCards = this.game.hand.getPlayedCards();
+        if (playedCards[0].value) {
+            this.drawCard(playedCards[0], x, y);
+        }
+        if (playedCards[1].value) {
+            this.drawCard(playedCards[1], x - (10 + this.cardWidth), y - (this.cardHeight / 2 + 5));
+        }
+        if (playedCards[2].value) {
+            this.drawCard(playedCards[2], x, y - (this.cardHeight + 10));
+        }
+        if (playedCards[3].value) {
+            this.drawCard(playedCards[3], x + (10 + this.cardWidth), y - (this.cardHeight / 2 + 5));
+        }
     }
 
     /**
@@ -267,10 +320,13 @@ class Gui implements HandObserver {
     }
 
     private passButtonClick() {
-        this.game.hand.pass(0, this.game.getPassingDirection(), this.cardsToPass.slice());
-        this.cardsToPass.clear();
         this.humanPlayerPassed = true;
-        this.draw();
+        const passingCards = this.cardsToPass.slice();
+        this.cardsToPass.clear();
+        this.game.hand.pass(0, this.game.getPassingDirection(), passingCards);
+        // console.log("about to clear from passButtonClick");
+        // this.cardsToPass.clear();
+        // this.draw();
     }
 
     public draw() {
@@ -291,13 +347,25 @@ class Gui implements HandObserver {
         else if (this.game.hand.getPassCount() < 4) {
             this.drawHand(() => { console.log("clicked on card when human already passed"); });
         }
+        else if (this.showingPassedCards) {
+            console.log("got draw in showing passed cards, length:", this.cardsToPass.length());
+            this.drawHand((card: Card) => { console.log("clicked card while showing passed, but you shouldn't see this because click goes to skipping timer"); });
+            this.drawCardsToPass();
+        }
         else {
             this.drawHand((card: Card) => { this.playCard(card); });
+            this.drawPlayedCards();
         }
     }
 
     public click(e: MouseEvent) {
         console.log("gui click: ", e.x, e.y);
+        if (this.waiting && this.clickSkips) {
+            clearTimeout(this.currentWait);
+            this.waiting = false;
+            return;
+        }
+
         this.clickables.some((c) => {
             if (c.contains(e.x, e.y)) {
                 c.onClick();
@@ -307,30 +375,111 @@ class Gui implements HandObserver {
         });
     }
 
+    private handleMessage(messageData: any) {
+        if (messageData.value) {
+            // single card
+            // play it
+            console.log("received message from worker, turn:", this.game.hand.getWhoseTurn());
+            this.game.hand.playCard(new Card(messageData));
+        }
+        else {
+            // passing data
+            for (let fromPlayer = 1; fromPlayer < 4; ++fromPlayer) {
+                const toPlayer = (fromPlayer + this.game.getPassingDirection()) % 4;
+                const cardArray: Card[] = [
+                    new Card(messageData[fromPlayer][0]),
+                    new Card(messageData[fromPlayer][1]),
+                    new Card(messageData[fromPlayer][2])
+                ];
+                this.game.hand.pass(fromPlayer, toPlayer, cardArray);
+            }
+        }
+    }
+
+    private drawWait(seconds: number, allowSkipWithClick: boolean) {
+        this.waiting = true;
+        this.clickSkips = allowSkipWithClick;
+        this.currentWait = setTimeout(() => {
+            this.waiting = false;
+        }, seconds * 1000);
+        this.draw();
+        console.log("just called draw from drawWait, length:", this.cardsToPass.length());
+        return new Promise((resolve, reject) => {
+            let intervalTimer: any;
+            intervalTimer = setInterval(() => {
+                if (! this.waiting) {
+                    clearInterval(intervalTimer);
+                    resolve();
+                }
+            }, 50);
+        });
+    }
+
+    private showReceivedCards() {
+        this.showingPassedCards = true;
+        return this.drawWait(3, true).then(() => {
+            this.showingPassedCards = false;
+            this.cardsToPass.clear();
+        });
+    }
+
     resetHand(): void {
         // this.draw();
     }
     dealHands(): void {
         this.humanPlayerPassed = false;
+        this.receivedCards.length = 0;
         this.draw();
     }
     receivePassedCards(): void {
         // TODO: show passed cards
+        console.log("gui sees received passed cards");
+        this.game.hand.resetTrick();
         this.draw();
     }
     resetTrick(): void {
+        if (this.game.hand.getWhoseTurn() !== 0) {
+            this.workerMessagePlay();
+        }
         this.draw();
     }
     pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
         if (fromPlayer === 0) {
             this.humanPlayerPassed = true;
         }
+        else if (toPlayer === 0) {
+            // saved passed cards
+            this.receivedCards = cards.slice();
+        }
         if (this.game.hand.getPassCount() === 4) {
-            this.game.hand.receivePassedCards();
+            // show passed cards
+            console.log("about to clear from pass function");
+            this.cardsToPass.clear();
+            this.cardsToPass.insert(this.receivedCards[0]);
+            this.cardsToPass.insert(this.receivedCards[1]);
+            this.cardsToPass.insert(this.receivedCards[2]);
+            this.showReceivedCards().then(() => {
+                this.game.hand.receivePassedCards();
+            });
         }
         this.draw();
     }
     seeCardPlayed(card: Card, byPlayer: Number, showingOnlyHearts: boolean) {
+        // TODO: show card for 1 second, while next turn thinks
+        if (this.game.hand.getPlayedCardCount() === 4) {
+            this.game.hand.endTrick();
+            this.drawWait(2, true).then(() => {
+                if (this.game.hand.getHand(0).length()) {
+                    this.game.hand.resetTrick();
+                }
+                else {
+                    this.game.hand.endHand();
+                }
+            });
+        }
+        else if (this.game.hand.getWhoseTurn() !== 0) {  // (and not last turn in trick)
+            this.workerMessagePlay();
+        }
         this.draw();
     }
 }

@@ -3,6 +3,13 @@ import CardGroup from "./CardGroup";
 import GameHand from "./GameHand";
 import Card from "./Card";
 
+function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 class AI implements HandObserver {
     private pointsPlayedThisTrick: boolean = false;
     private shootMoonPossible: boolean = true;
@@ -12,6 +19,17 @@ class AI implements HandObserver {
     private cardsIPassed: Card[] = [];  // and not played yet, removed from here when they are seen played
     private gameHand: GameHand;
     private whoAmI: number;  // playerIndex
+
+    public choosePassingCards() {
+        // TODO: AI
+        // for now, random 3
+        const hand = this.gameHand.getHand(this.whoAmI);
+        const count = hand.length();
+        const indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        shuffleArray(indexes);
+        const toReturn: Card[] = [hand.at(indexes[0]) as Card, hand.at(indexes[1]) as Card, hand.at(indexes[2]) as Card];
+        return toReturn;
+    }
 
     private speculateHands(passingDirection: number) {
         const speculatedHands = [
@@ -300,7 +318,7 @@ class AI implements HandObserver {
                 if (nonZeroScore !== -1) {
                     // see whether this player has played yet this trick
                     let thisPlayerPLayed = false;
-                    let goingThroughTurns = (this.gameHand.getWhoseTurn() + 5 - this.gameHand.getPlayedCardCount()) % 4;  // first turn this trick
+                    let goingThroughTurns = (byPlayer + 5 - this.gameHand.getPlayedCardCount()) % 4;  // first turn this trick
                     for (let turn = this.gameHand.getPlayedCardCount(); turn > 0; --turn) {
                         if (goingThroughTurns === nonZeroScore) {
                             thisPlayerPLayed = true;
@@ -312,10 +330,10 @@ class AI implements HandObserver {
                     if (thisPlayerPLayed) {
                         if (nonZeroScore !== this.gameHand.getTrickLeader()) {
                             this.shootMoonPossible = false;
-                        }
 
-                        // for testing
-                        console.log("this is the point when it becomes impossible for anyone to shoot the moon");
+                            // for testing
+                            console.log("this is the point when it becomes impossible for anyone to shoot the moon");
+                        }
                     }
                 }
             }

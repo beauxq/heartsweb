@@ -178,8 +178,10 @@ class GameHand {
     }
 
     public playCard(card: Card) {
+        console.log("playing card on turn:", this.whoseTurn);
         this.hands[this.whoseTurn].remove(card);
         this.playedCards[this.whoseTurn] = card;
+        console.log("added card to playedCards:", this.playedCards);
         ++this.playedCardCount;
 
         if (this.takesLead(card)) {
@@ -194,10 +196,12 @@ class GameHand {
             this.heartsBroken = true;  // TODO: alternate rule q of spades breaks hearts?
         }
 
-        // observer here before whoseTurn is changed
-        this.observerList.forEach((ob) => { ob.seeCardPlayed(card, this.whoseTurn, showingOnlyHearts); });
+        // give observer who played the card
+        const byPlayer = this.whoseTurn;
 
         this.whoseTurn = (this.whoseTurn + 1) % 4;
+
+        this.observerList.forEach((ob) => { ob.seeCardPlayed(card, byPlayer, showingOnlyHearts); });
     }
 
     public pointsFor(card: Card) {
