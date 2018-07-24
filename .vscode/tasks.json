@@ -22,6 +22,18 @@
             "label": "webpack",
             "command": "npx webpack --config webpack.config.js",
             "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "webpack worker",
+            "command": "npx webpack --config worker.webpack.config.js",
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "full build and run",
+            "command": "./fullbuild.sh",
+            "problemMatcher": []
         }
     ]
 }

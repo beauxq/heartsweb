@@ -6,15 +6,9 @@ import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
 
 function workerFunction() {
-    addEventListener('message', (message) => {
-        console.log('in webworker', message);
-        if (message.data.length) {
-            // AI array
-            const ai1 = new AI(message.data[1]);
-            console.log(ai1.staticPlayAI());
-        }
-        // postMessage('this is the response ', "");
-    });
+    // to run without a server
+    // paste compiled and packed worker code here
+    // and switch worker definition in constructor
 }
 
 class Gui implements HandObserver {
@@ -54,7 +48,8 @@ class Gui implements HandObserver {
         this.context = context;
         this.assets = assets;
 
-        this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
+        // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
+        this.worker = new Worker("workerbundle.js");
         this.worker.addEventListener('message', (message) => {
             console.log("received message from worker:");
             console.log(message);
