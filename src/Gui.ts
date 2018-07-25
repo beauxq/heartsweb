@@ -508,8 +508,13 @@ class Gui implements HandObserver {
                     console.log("last card of hand played");
                     this.game.hand.endHand();
                     this.game.endHand();
-                    // TODO: check for game end
-                    this.game.hand.resetHand();
+                    // check for game end
+                    if (this.game.winners.length) {
+                        // TODO: game end
+                    }
+                    else {  // game not over
+                        this.game.hand.resetHand();
+                    }
                 }
             });
         }
