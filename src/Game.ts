@@ -37,6 +37,9 @@ class Game {
                 }
             }
         }
+        else {
+            this.changePassing();
+        }
     }
 
     public changePassing() {

@@ -447,6 +447,7 @@ class Gui implements HandObserver {
         });
     }
 
+    // notifications from hand (handObserver interface)
     resetHand(): void {
         this.game.hand.dealHands();
     }
