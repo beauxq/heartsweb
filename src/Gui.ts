@@ -33,6 +33,7 @@ class Gui implements HandObserver {
     private cardWidth: number = 42;
     private cardHeight: number = 58.5;
     private vertical: boolean = false;
+    private fontSize: number = 18;
 
     private cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
@@ -101,8 +102,9 @@ class Gui implements HandObserver {
         // TODO: load saved game
         this.game.reset();
         this.game.hand.resetHand();
-        this.game.hand.dealHands();
-        this.workerMessagePassing();
+        // these are in resetHand observer
+        // this.game.hand.dealHands();
+        // this.workerMessagePassing();
     }
 
     /**
@@ -239,6 +241,26 @@ class Gui implements HandObserver {
         });
     }
 
+    private drawPlayerScore(player: number, x: number, y: number) {
+        this.context.fillText("Game: " + this.game.scores[player], x, y + this.fontSize / 2);
+        this.context.fillText("Hand: " + this.game.hand.getScore(player), x, y + this.fontSize * 1.5);
+    }
+
+    drawScores() {
+        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.fillStyle = "#88ff88";
+        // player 0
+        this.context.fillText("Game: " + this.game.scores[0] + "  Hand: " + this.game.hand.getScore(0),
+                              5,
+                              this.yForBottomMiddle() + (this.cardHeight + Gui.verticalPadding) + this.fontSize / 2);
+        // player 1
+        this.drawPlayerScore(1, 5, this.context.canvas.height / 4);
+        // player 2
+        this.drawPlayerScore(2, (this.context.canvas.width + this.cardWidth + 10) / 2, 5);
+        // player 3
+        this.drawPlayerScore(3, this.context.canvas.width - 100, this.context.canvas.height / 2);
+    }
+
     private yForBottomMiddle() {
         return this.context.canvas.height -
                ((this.vertical ? 3 : 2) *
@@ -258,7 +280,7 @@ class Gui implements HandObserver {
     }
 
     private drawPlayedCards() {
-        const y = this.yForBottomMiddle();
+        const y = Math.min(this.yForBottomMiddle(), this.context.canvas.height / 2);
         const x = (this.context.canvas.width - this.cardWidth) / 2;
         const playedCards = this.game.hand.getPlayedCards();
         if (playedCards[0].value) {
@@ -334,6 +356,8 @@ class Gui implements HandObserver {
         this.context.fillStyle = "purple";
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.clickables.length = 0;
+
+        this.drawScores();
 
         if (! this.humanPlayerPassed) {  // passing needs to be done
             //passing
@@ -424,15 +448,22 @@ class Gui implements HandObserver {
     }
 
     resetHand(): void {
-        // this.draw();
+        this.game.hand.dealHands();
     }
     dealHands(): void {
-        this.humanPlayerPassed = false;
         this.receivedCards.length = 0;
+        if (this.game.getPassingDirection()) {
+            this.humanPlayerPassed = false;
+            this.workerMessagePassing();
+        }
+        else {
+            this.game.hand.setPassed();
+            this.humanPlayerPassed = true;
+            this.game.hand.resetTrick();
+        }
         this.draw();
     }
     receivePassedCards(): void {
-        // TODO: show passed cards
         console.log("gui sees received passed cards");
         this.game.hand.resetTrick();
         this.draw();
@@ -473,7 +504,11 @@ class Gui implements HandObserver {
                     this.game.hand.resetTrick();
                 }
                 else {
+                    console.log("last card of hand played");
                     this.game.hand.endHand();
+                    this.game.endHand();
+                    // TODO: check for game end
+                    this.game.hand.resetHand();
                 }
             });
         }
