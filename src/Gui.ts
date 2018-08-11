@@ -33,7 +33,7 @@ class Gui implements HandObserver {
     private cardWidth: number = 42;
     private cardHeight: number = 58.5;
     private vertical: boolean = false;
-    private fontSize: number = 18;
+    private fontSize: number = 36;
 
     private cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
@@ -166,7 +166,8 @@ class Gui implements HandObserver {
     }
 
     private static getRowBreak(hand: CardGroup): number {
-        let checkingIndex = Math.floor(hand.length() / 2);
+        const handLength = hand.length();
+        let checkingIndex = Math.floor(handLength / 2);
         if (Gui.startsNewSuit(checkingIndex, hand)){
             return checkingIndex;
         }
@@ -175,7 +176,7 @@ class Gui implements HandObserver {
             let direction = (hand.length(0) + hand.length(1) > checkingIndex) ? 1 : -1;
             checkingIndex += direction;
             // don't put more than 7 on a row
-            while (checkingIndex > hand.length() - 8 && checkingIndex < 8) {
+            while (checkingIndex > handLength - 8 && checkingIndex < 8) {
                 if (Gui.startsNewSuit(checkingIndex, hand)){
                     return checkingIndex;
                 }
@@ -183,20 +184,21 @@ class Gui implements HandObserver {
             }
             // check the other direction
             direction = 0 - direction;
-            checkingIndex = Math.floor(hand.length() / 2) + direction;
-            while (checkingIndex > hand.length() - 8 && checkingIndex < 8) {
+            checkingIndex = Math.floor(handLength / 2) + direction;
+            while (checkingIndex > handLength - 8 && checkingIndex < 8) {
                 if (Gui.startsNewSuit(checkingIndex, hand)){
                     return checkingIndex;
                 }
                 checkingIndex += direction;
             }
             // couldn't find a good break between suits, so break in the middle of a suit
-            return Math.floor(hand.length() / 2);
+            return Math.floor(handLength / 2);
         }
 
     }
 
     drawHand(cardClick: Function) {
+        // TODO: cards bigger with overlap
         const hand = this.game.hand.getHand(0);
         const cardCount = hand.length();
 
@@ -242,8 +244,8 @@ class Gui implements HandObserver {
     }
 
     private drawPlayerScore(player: number, x: number, y: number) {
-        this.context.fillText("Game: " + this.game.scores[player], x, y + this.fontSize / 2);
-        this.context.fillText("Hand: " + this.game.hand.getScore(player), x, y + this.fontSize * 1.5);
+        this.context.fillText("Game: " + this.game.scores[player], x, y + this.fontSize * .7);
+        this.context.fillText("Hand: " + this.game.hand.getScore(player), x, y + this.fontSize * 1.7);
     }
 
     drawScores() {
@@ -258,7 +260,7 @@ class Gui implements HandObserver {
         // player 2
         this.drawPlayerScore(2, (this.context.canvas.width + this.cardWidth + 10) / 2, 5);
         // player 3
-        this.drawPlayerScore(3, this.context.canvas.width - 100, this.context.canvas.height / 2);
+        this.drawPlayerScore(3, this.context.canvas.width - 180, this.context.canvas.height / 2);
     }
 
     private yForBottomMiddle() {
@@ -420,6 +422,11 @@ class Gui implements HandObserver {
         }
     }
 
+    /**
+     * returns a promise resolved when were done waiting
+     * @param seconds 
+     * @param allowSkipWithClick clicking the mouse skips the wait
+     */
     private drawWait(seconds: number, allowSkipWithClick: boolean) {
         this.waiting = true;
         this.clickSkips = allowSkipWithClick;
@@ -427,7 +434,7 @@ class Gui implements HandObserver {
             this.waiting = false;
         }, seconds * 1000);
         this.draw();
-        console.log("just called draw from drawWait, length:", this.cardsToPass.length());
+        // console.log("just called draw from drawWait, cardsToPass length:", this.cardsToPass.length());
         return new Promise((resolve, reject) => {
             let intervalTimer: any;
             intervalTimer = setInterval(() => {
@@ -485,7 +492,7 @@ class Gui implements HandObserver {
         }
         if (this.game.hand.getPassCount() === 4) {
             // show passed cards
-            console.log("about to clear from pass function");
+            // console.log("about to clear from pass function");
             this.cardsToPass.clear();
             this.cardsToPass.insert(this.receivedCards[0]);
             this.cardsToPass.insert(this.receivedCards[1]);
