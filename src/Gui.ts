@@ -33,7 +33,7 @@ class Gui implements HandObserver {
     private cardWidth: number = 42;
     private cardHeight: number = 58.5;
     private vertical: boolean = false;
-    private fontSize: number = 36;
+    private fontSize: number = 18;
 
     private cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
@@ -46,7 +46,7 @@ class Gui implements HandObserver {
 
     public resize() {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
-        this.cardWidth = this.context.canvas.width / (this.vertical ? 7.6 : 13.7 );
+        this.cardWidth = this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
         this.cardHeight = this.cardWidth * Gui.assetHeight / Gui.assetWidth;
         console.log("card width set to", this.cardWidth);
     }
@@ -223,7 +223,14 @@ class Gui implements HandObserver {
         let rowY =
             this.context.canvas.height -
             ((this.cardHeight + Gui.verticalPadding) * 2);
-        const cardSpaceWidth = this.cardWidth * 1.05;
+        // console.log("card width:", this.cardWidth);
+        const maxRowLength = Math.max(rows[0].length, rows[1].length);
+        // console.log("max row length:", maxRowLength);
+        const cardSpaceWidth =
+            ((this.vertical && maxRowLength > 5) || (maxRowLength > 10)) ?
+            (this.context.canvas.width - (this.cardWidth + 10)) / (maxRowLength - 1) :
+            this.cardWidth * 1.05;
+        // console.log("cardSpaceWidth:", cardSpaceWidth);
         rows.forEach((row) => {
             const xForRowBegin =
                 this.context.canvas.width / 2 -  // middle
@@ -244,23 +251,25 @@ class Gui implements HandObserver {
     }
 
     private drawPlayerScore(player: number, x: number, y: number) {
-        this.context.fillText("Game: " + this.game.scores[player], x, y + this.fontSize * .7);
-        this.context.fillText("Hand: " + this.game.hand.getScore(player), x, y + this.fontSize * 1.7);
+        this.context.fillText("Game: " + this.game.scores[player], x, y);
+        this.context.fillText("Hand: " + this.game.hand.getScore(player), x, y + this.fontSize);
     }
 
     drawScores() {
         this.context.font = "" + this.fontSize + "px Arial";
         this.context.fillStyle = "#88ff88";
+        this.context.textBaseline = "top";
         // player 0
         this.context.fillText("Game: " + this.game.scores[0] + "  Hand: " + this.game.hand.getScore(0),
                               5,
-                              this.yForBottomMiddle() + (this.cardHeight + Gui.verticalPadding) + this.fontSize / 2);
+                              this.yForBottomMiddle() + (this.cardHeight + Gui.verticalPadding));
         // player 1
         this.drawPlayerScore(1, 5, this.context.canvas.height / 4);
         // player 2
         this.drawPlayerScore(2, (this.context.canvas.width + this.cardWidth + 10) / 2, 5);
         // player 3
-        this.drawPlayerScore(3, this.context.canvas.width - 180, this.context.canvas.height / 2);
+        const w = this.context.measureText("Game: 100").width;
+        this.drawPlayerScore(3, this.context.canvas.width - (w + 5), this.context.canvas.height / 3);
     }
 
     private yForBottomMiddle() {
@@ -392,13 +401,14 @@ class Gui implements HandObserver {
             return;
         }
 
-        this.clickables.some((c) => {
-            if (c.contains(e.x, e.y)) {
-                c.onClick();
-                return true;  // only click on one thing at a time
+        // have to go through clickables backwards
+        // because the one that is drawn last is on top and thus has priority for click
+        for (let i = this.clickables.length - 1; i >= 0; --i) {
+            if (this.clickables[i].contains(e.x, e.y)) {
+                this.clickables[i].onClick();
+                break;  // only click on one thing at a time
             }
-            return false;
-        });
+        }
     }
 
     private handleMessage(messageData: any) {
