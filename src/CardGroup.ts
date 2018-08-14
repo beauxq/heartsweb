@@ -81,17 +81,18 @@ class CardGroup {
     public remove(cardOrIndex: Card|number) {
         let indexInSuitArray: number, arrayToRemoveFrom: Card[];
 
-        if (cardOrIndex instanceof Card) {
-            arrayToRemoveFrom = this.cards[cardOrIndex.suit];
+        if (cardOrIndex.hasOwnProperty("suit")) {
+            const card = cardOrIndex as Card;
+            arrayToRemoveFrom = this.cards[card.suit];
 
-            indexInSuitArray = Card.find(arrayToRemoveFrom, cardOrIndex);
+            indexInSuitArray = Card.find(arrayToRemoveFrom, card);
 
             if (indexInSuitArray === -1) {
                 return;
             }
         }
         else {  // cardOrIndex is index
-            const suitAndIndex = this.getSuitAndIndex(cardOrIndex);
+            const suitAndIndex = this.getSuitAndIndex(cardOrIndex as number);
             if (! suitAndIndex) {
                 return;
             }

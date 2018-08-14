@@ -14,9 +14,13 @@ ctx.addEventListener('message', (message) => {
         const ai3 = new AI(message.data[3]);
         // console.log(ai1.staticPlayAI());
 
-        ai1.observeSelf();
-        ai2.observeSelf();
-        ai3.observeSelf();
+        // I don't think i need these
+        // all it does is give me information for speculating hands
+        // I only speculate hands once per simulation
+        // I already have the information I need to speculate that one time
+        // ai1.observeSelf();
+        // ai2.observeSelf();
+        // ai3.observeSelf();
 
         const ai1Cards = ai1.choosePassingCards();
         const ai2Cards = ai2.choosePassingCards();
@@ -31,6 +35,6 @@ ctx.addEventListener('message', (message) => {
         ai.observeSelf();
 
         // TODO: AI
-        ctx.postMessage(ai.staticPlayAI());
+        ctx.postMessage(ai.dynamicPlay());
     }
 });

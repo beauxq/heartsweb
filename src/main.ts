@@ -27,7 +27,7 @@ async function main() {
     gh.registerObserver(ai3);
     const ais = [ai1, ai1, ai2, ai3];
 
-    gh.resetHand();
+    gh.resetHand(0);
     gh.dealHands();
     console.log("hands dealt");
     gh.setPassed();

@@ -11,6 +11,9 @@ function shuffleArray(array: any[]) {
 }
 
 class AI implements HandObserver {
+    /** number of tricks to simulate */
+    static LEVEL: number = 10000;
+
     private unknownCards: CardGroup = new CardGroup();
     private playerSeenVoidInSuits: boolean[][] = [];
 
@@ -23,6 +26,7 @@ class AI implements HandObserver {
     /** to be called in worker where observerList has been removed */
     public observeSelf() {
         this.gameHand.registerObserver(this);
+        // TODO: find out if I need this... I don't think I do
     }
 
     public choosePassingCards() {
@@ -55,7 +59,15 @@ class AI implements HandObserver {
 
         function nonFullHands(player: number) { return spaceRemainingIn[player] > 0 };
 
-        const handsThatAllowSuit: boolean[][] = [];  // first index is suit, second is player
+        // testing nonFullHands
+        // console.log("nonFullHands:");
+        // console.log(0, nonFullHands(0));
+        // console.log(1, nonFullHands(1));
+        // console.log(2, nonFullHands(2));
+        // console.log(3, nonFullHands(3));
+
+        /** first index is suit, second is player */
+        const handsThatAllowSuit: boolean[][] = [];
         for (let suit = 0; suit < 4; ++suit) {
             handsThatAllowSuit.push([
                 ! (this.playerSeenVoidInSuits[0][suit]),
@@ -64,13 +76,20 @@ class AI implements HandObserver {
                 ! (this.playerSeenVoidInSuits[3][suit])
             ]);
         }
+        // console.log("handsThatAllowSuit:");
+        // console.log(handsThatAllowSuit);
+
+        // console.log("unknown length", this.unknownCards.length());
+        // this.unknownCards.forEach((card) => { console.log(card.str()); });
 
         const allowSuitAndNonFull: number[] = [];  // intersection of non-full-hands with hands that allow this suit
         this.unknownCards.forEach((thisCard) => {
+            // console.log("trying to find a place for ", thisCard.str());
             allowSuitAndNonFull.length = 0;
             handsThatAllowSuit[thisCard.suit].forEach((allowThisSuit, player) => {
                 if (allowThisSuit && nonFullHands(player)) {
                     allowSuitAndNonFull.push(player);
+                    // console.log("allowSuitAndNonFull:", allowSuitAndNonFull);
                 }
             });
 
@@ -80,6 +99,7 @@ class AI implements HandObserver {
                 -- spaceRemainingIn[receiver];
             }
             else {  // there are no hands left that allow this suit and have space for this card
+                // console.log("couldn't find a place for it in one step (0 swaps)");
                 // so we have to do some swapping
                 // find which suits are allowed in non-full hands
                 const suitsAllowedInNonFull = [ false, false, false, false ];
@@ -158,7 +178,7 @@ class AI implements HandObserver {
                     }
 
                     // debugging assertions  // TODO: remove
-                    if (handsThatAllowSuit[thisCard.suit].length !== 1) {
+                    if (handsThatAllowSuit[thisCard.suit].filter(x => x).length !== 1) {  // count 'true'
                         console.log("ERROR: big assertion was wrong, hands that allow this suit != 1");  // !
                     }
                     // also, number of non full hands was 1
@@ -255,8 +275,10 @@ class AI implements HandObserver {
     }
 
     public dealHands() {
+        console.log("seeing my dealt hand:", this.whoAmI);
         this.gameHand.getHand(this.whoAmI).forEach((card) => {
             this.unknownCards.remove(card);
+            console.log(card.str());
         });
     }
 
@@ -267,8 +289,10 @@ class AI implements HandObserver {
     }
 
     public receivePassedCards() {
+        console.log("seeing my cards after passing", this.whoAmI);
         this.gameHand.getHand(this.whoAmI).forEach((card) => {
             this.unknownCards.remove(card);
+            console.log(card.str());
         });
     }
 
@@ -276,7 +300,12 @@ class AI implements HandObserver {
     }
 
     public seeCardPlayed(card: Card, byPlayer: number, showingOnlyHearts: boolean = false) {
+        console.log("seeing a card played", this.whoAmI);
+        console.log(card.str());
+        console.log("see card unknown length before:", this.unknownCards.length());
         this.unknownCards.remove(card);
+        console.log("just removed because saw it played");
+        console.log("see card unknown length after:", this.unknownCards.length());
 
         // remove from passed cards
         let indexInPassed = -1;
@@ -465,6 +494,59 @@ class AI implements HandObserver {
         else {
             return this.staticPlayAI();
         }
+    }
+
+    public dynamicPlay(): Card {
+        const validChoices = this.gameHand.findValidChoices();
+
+        if (validChoices.length === 1) {
+            return validChoices[0];
+        }
+
+        const scoreForEachVC: number[] = validChoices.map(() => { return 0; });
+        // console.log("score array should be all 0s, one for each valid");
+        // console.log(scoreForEachVC);
+        const loopCount = Math.floor(
+            (AI.LEVEL / validChoices.length) / this.gameHand.getHand(this.gameHand.getWhoseTurn()).length()
+        );
+
+        for (let i = loopCount; i > 0; --i) {
+            validChoices.forEach((card, index) => {
+                const sim = new GameHand(this.gameHand);
+                const simAI = new AI(sim, this.whoAmI);
+                sim.setHands(this.speculateHands(sim.getPassingDirection()));
+
+                // play the card we're checking now
+                sim.playCard(card);
+
+                do {
+                    while (sim.turnsLeftInTrick()) {
+                        sim.playCard(simAI.simPlayCard());
+                    }
+                    sim.endTrick();
+
+                    if (sim.getHand(0).length()) {  // more tricks to play
+                        sim.resetTrick();
+                    }
+                } while (sim.getHand(0).length());  // until there are no more tricks left to play
+                sim.endHand();
+
+                scoreForEachVC[index] += sim.getScore(this.whoAmI);
+                // console.log("just added", sim.getScore(this.whoAmI), "now", scoreForEachVC[index]);
+            });  // end valid choice loop
+        }  // end loop according to AI.LEVEL
+
+        // simple min function
+        let indexOfMin = 0;
+        console.log(validChoices[0].str(), scoreForEachVC[0] / loopCount);
+        for (let i = 1; i < validChoices.length; ++i) {
+            if (scoreForEachVC[i] < scoreForEachVC[indexOfMin]) {
+                indexOfMin = i;
+            }
+            console.log(validChoices[i].str(), scoreForEachVC[i] / loopCount);
+        }
+
+        return validChoices[indexOfMin];
     }
 }
 

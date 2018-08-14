@@ -94,14 +94,14 @@ class Gui implements HandObserver {
             new AI(this.game.hand, 3)
         ];
 
-        this.game.hand.registerObserver(this);
         for (let player = 1; player < 4; ++player) {
             this.game.hand.registerObserver(this.ais[player] as AI);
         }
+        this.game.hand.registerObserver(this);
 
         // TODO: load saved game
         this.game.reset();
-        this.game.hand.resetHand();
+        this.game.hand.resetHand(this.game.getPassingDirection());
         // these are in resetHand observer
         // this.game.hand.dealHands();
         // this.workerMessagePassing();
@@ -514,6 +514,7 @@ class Gui implements HandObserver {
         this.draw();
     }
     seeCardPlayed(card: Card, byPlayer: Number, showingOnlyHearts: boolean) {
+        console.log("see card played in GUI");
         // TODO: show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {
             this.game.hand.endTrick();
@@ -530,7 +531,7 @@ class Gui implements HandObserver {
                         // TODO: game end
                     }
                     else {  // game not over
-                        this.game.hand.resetHand();
+                        this.game.hand.resetHand(this.game.getPassingDirection());
                     }
                 }
             });

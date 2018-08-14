@@ -18,6 +18,7 @@ const nullCard = new Card(0, 0);
 class GameHand {
     private hands: CardGroup[] = [new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()];
     private scores: number[] = [0, 0, 0, 0];
+    private passingDirection = 0;
     private passedCardsToPlayer: Card[][] = [[], [], [], []];  // first index is player passed to
     private passCount: number = 0;
 
@@ -42,7 +43,8 @@ class GameHand {
             this.hands[1] = new CardGroup(gameHand.hands[1]);
             this.hands[2] = new CardGroup(gameHand.hands[2]);
             this.hands[3] = new CardGroup(gameHand.hands[3]);
-            this.scores = gameHand.scores;
+            this.scores = gameHand.scores.map(x => x);
+            this.passingDirection = gameHand.passingDirection;
             for (let player = 0; player < 4; ++player) {
                 gameHand.passedCardsToPlayer[player].forEach((card) => {
                     this.passedCardsToPlayer[player].push(new Card(card));
@@ -77,6 +79,10 @@ class GameHand {
 
     public getScore(player: number) {
         return this.scores[player];
+    }
+
+    public getPassingDirection(): number {
+        return this.passingDirection;
     }
 
     public turnsLeftInTrick() {
@@ -118,8 +124,13 @@ class GameHand {
         this.passCount = 4;
     }
 
+    /** to be called with speculated hands in simulation */
+    setHands(hands: CardGroup[]): void {
+        this.hands = hands;
+    }
 
-    public resetHand() {
+    public resetHand(passingDirection: number) {
+        this.passingDirection = passingDirection;
         for (let i = 0; i < 4; ++i) {
             this.hands[i].clear();
             this.scores[i] = 0;
@@ -189,10 +200,10 @@ class GameHand {
     }
 
     public playCard(card: Card) {
-        console.log("playing card on turn:", this.whoseTurn);
+        // console.log("playing card on turn:", this.whoseTurn);
         this.hands[this.whoseTurn].remove(card);
         this.playedCards[this.whoseTurn] = card;
-        console.log("added card to playedCards:", this.playedCards);
+        // console.log("added card to playedCards:", this.playedCards);
         ++this.playedCardCount;
 
         if (this.takesLead(card)) {
@@ -242,7 +253,7 @@ class GameHand {
                             this.shootMoonPossible = false;
 
                             // for testing
-                            console.log("INFO: this is the point when it becomes impossible for anyone to shoot the moon");
+                            // console.log("INFO: this is the point when it becomes impossible for anyone to shoot the moon");
                         }
                     }
                 }
