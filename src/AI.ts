@@ -11,14 +11,19 @@ function shuffleArray(array: any[]) {
 }
 
 class AI implements HandObserver {
-    private pointsPlayedThisTrick: boolean = false;
-    private shootMoonPossible: boolean = true;
     private unknownCards: CardGroup = new CardGroup();
     private playerSeenVoidInSuits: boolean[][] = [];
 
-    private cardsIPassed: Card[] = [];  // and not played yet, removed from here when they are seen played
+    /** and not played yet, removed from here when they are seen played */
+    private cardsIPassed: Card[] = [];
     private gameHand: GameHand;
-    private whoAmI: number;  // playerIndex
+    /** player index */
+    private whoAmI: number;
+
+    /** to be called in worker where observerList has been removed */
+    public observeSelf() {
+        this.gameHand.registerObserver(this);
+    }
 
     public choosePassingCards() {
         // TODO: AI
@@ -31,7 +36,7 @@ class AI implements HandObserver {
         return toReturn;
     }
 
-    private speculateHands(passingDirection: number) {
+    private speculateHands(passingDirection: number): CardGroup[] {
         const speculatedHands = [
             new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()
         ];
@@ -222,8 +227,6 @@ class AI implements HandObserver {
         if (gameHand.hasOwnProperty("whoAmI")) {
             // copy constructor
             const ai = gameHand as AI;
-            this.pointsPlayedThisTrick = ai.pointsPlayedThisTrick;
-            this.shootMoonPossible = ai.shootMoonPossible;
             this.unknownCards = new CardGroup(ai.unknownCards);
             this.playerSeenVoidInSuits = ai.playerSeenVoidInSuits;
             this.cardsIPassed = [];
@@ -249,7 +252,6 @@ class AI implements HandObserver {
             [false, false, false, false],
             [false, false, false, false]
         ];
-        this.shootMoonPossible = true;
     }
 
     public dealHands() {
@@ -271,13 +273,9 @@ class AI implements HandObserver {
     }
 
     public resetTrick() {
-        this.pointsPlayedThisTrick = false;
     }
 
     public seeCardPlayed(card: Card, byPlayer: number, showingOnlyHearts: boolean = false) {
-        if (this.gameHand.pointsFor(card)) {
-            this.pointsPlayedThisTrick = true;
-        }
         this.unknownCards.remove(card);
 
         // remove from passed cards
@@ -302,41 +300,6 @@ class AI implements HandObserver {
             this.playerSeenVoidInSuits[byPlayer][Card.CLUBS] = true;
             this.playerSeenVoidInSuits[byPlayer][Card.DIAMONDS] = true;
             this.playerSeenVoidInSuits[byPlayer][Card.SPADES] = true;
-        }
-
-        // see if it's still possible to shoot the moon
-        if (this.shootMoonPossible) {
-            if (this.pointsPlayedThisTrick) {
-                let nonZeroScore = -1;
-                for (let player = 0; player < 4; ++player) {
-                    if (this.gameHand.getScore(player)) {
-                        nonZeroScore = player;
-                        break;
-                    }
-                }
-
-                if (nonZeroScore !== -1) {
-                    // see whether this player has played yet this trick
-                    let thisPlayerPLayed = false;
-                    let goingThroughTurns = (byPlayer + 5 - this.gameHand.getPlayedCardCount()) % 4;  // first turn this trick
-                    for (let turn = this.gameHand.getPlayedCardCount(); turn > 0; --turn) {
-                        if (goingThroughTurns === nonZeroScore) {
-                            thisPlayerPLayed = true;
-                            break;
-                        }
-                        goingThroughTurns = (goingThroughTurns + 1) % 4;
-                    }
-
-                    if (thisPlayerPLayed) {
-                        if (nonZeroScore !== this.gameHand.getTrickLeader()) {
-                            this.shootMoonPossible = false;
-
-                            // for testing
-                            console.log("this is the point when it becomes impossible for anyone to shoot the moon");
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -389,7 +352,7 @@ class AI implements HandObserver {
                             ) {
                                 return validChoices[validChoices.length - 2];  // highest except queen
                             }
-                            else {  // not queen or I don't ahve anything is
+                            else {  // not queen or I don't have anything else
                                 return highestCard;
                             }
                         }
@@ -427,7 +390,8 @@ class AI implements HandObserver {
                     // play the highest card in that suit
 
                     let currentSuit = validChoices[0].suit;
-                    let sothlcois = currentSuit;  // suit of the highest lowest card of its suit
+                    /** suit of the highest lowest card of its suit */
+                    let sothlcois = currentSuit;
                     let lowestValue = validChoices[0].value;  // in that suit
 
                     for (let i = 1; i < validChoices.length; ++i) {
@@ -486,6 +450,21 @@ class AI implements HandObserver {
             }
         }
         */
+    }
+
+    private simPlayCard(): Card {
+        // TODO: I don't know a good way to tune these numbers
+        // if shooting the moon is possible, higher probability of playing a random card
+        /** out of 10 */
+        const randomIfLessThan = this.gameHand.getShootMoonPossible() ? 4 : 2;
+
+        if (Math.random() * 10 < randomIfLessThan) {
+            const vc = this.gameHand.findValidChoices();
+            return vc[Math.floor(Math.random() * vc.length)];
+        }
+        else {
+            return this.staticPlayAI();
+        }
     }
 }
 

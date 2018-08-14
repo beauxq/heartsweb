@@ -12,7 +12,11 @@ ctx.addEventListener('message', (message) => {
         const ai1 = new AI(message.data[1]);
         const ai2 = new AI(message.data[2]);
         const ai3 = new AI(message.data[3]);
-        console.log(ai1.staticPlayAI());
+        // console.log(ai1.staticPlayAI());
+
+        ai1.observeSelf();
+        ai2.observeSelf();
+        ai3.observeSelf();
 
         const ai1Cards = ai1.choosePassingCards();
         const ai2Cards = ai2.choosePassingCards();
@@ -24,6 +28,7 @@ ctx.addEventListener('message', (message) => {
         // single AI
         // pick a card to play
         const ai = new AI(message.data);
+        ai.observeSelf();
 
         // TODO: AI
         ctx.postMessage(ai.staticPlayAI());

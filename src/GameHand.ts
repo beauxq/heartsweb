@@ -27,6 +27,9 @@ class GameHand {
     private trickLeader: number = 0;
     private whoseTurn: number = 0;
     private heartsBroken: boolean = false;
+    private pointsPlayedThisTrick: boolean = false;
+
+    private shootMoonPossible: boolean = true;
 
     private observerList: HandObserver[] = [];
 
@@ -54,6 +57,8 @@ class GameHand {
             this.trickLeader = gameHand.trickLeader;
             this.whoseTurn = gameHand.whoseTurn;
             this.heartsBroken = gameHand.heartsBroken;
+            this.pointsPlayedThisTrick = gameHand.pointsPlayedThisTrick;
+            this.shootMoonPossible = gameHand.shootMoonPossible;
             // don't copy observer list
         }
     }
@@ -102,6 +107,10 @@ class GameHand {
         return this.passedCardsToPlayer[player];
     }
 
+    public getShootMoonPossible(): boolean {
+        return this.shootMoonPossible;
+    }
+
     /**
      * to be called on keeper hand to say we're done passing
      */
@@ -118,6 +127,7 @@ class GameHand {
         }
         this.passCount = 0;
         this.heartsBroken = false;
+        this.shootMoonPossible = true;
 
         this.observerList.forEach((ob) => { ob.resetHand(); });
     }
@@ -168,6 +178,7 @@ class GameHand {
         this.playedCards = [nullCard, nullCard, nullCard, nullCard];
         this.playedCardCount = 0;
         this.trickLeader = this.whoseTurn;
+        this.pointsPlayedThisTrick = false;
 
         this.observerList.forEach((ob) => { ob.resetTrick(); });
     }
@@ -196,8 +207,47 @@ class GameHand {
             this.heartsBroken = true;  // TODO: alternate rule q of spades breaks hearts?
         }
 
+        if (this.pointsFor(card)) {
+            this.pointsPlayedThisTrick = true;
+        }
+        
         // give observer who played the card
         const byPlayer = this.whoseTurn;
+
+        // see if it's still possible to shoot the moon
+        if (this.shootMoonPossible) {
+            if (this.pointsPlayedThisTrick) {
+                let nonZeroScore = -1;
+                for (let player = 0; player < 4; ++player) {
+                    if (this.getScore(player)) {
+                        nonZeroScore = player;
+                        break;
+                    }
+                }
+
+                if (nonZeroScore !== -1) {
+                    // see whether this player has played yet this trick
+                    let thisPlayerPLayed = false;
+                    let goingThroughTurns = (byPlayer + 5 - this.getPlayedCardCount()) % 4;  // first turn this trick
+                    for (let turn = this.getPlayedCardCount(); turn > 0; --turn) {
+                        if (goingThroughTurns === nonZeroScore) {
+                            thisPlayerPLayed = true;
+                            break;
+                        }
+                        goingThroughTurns = (goingThroughTurns + 1) % 4;
+                    }
+
+                    if (thisPlayerPLayed) {
+                        if (nonZeroScore !== this.getTrickLeader()) {
+                            this.shootMoonPossible = false;
+
+                            // for testing
+                            console.log("INFO: this is the point when it becomes impossible for anyone to shoot the moon");
+                        }
+                    }
+                }
+            }
+        }
 
         this.whoseTurn = (this.whoseTurn + 1) % 4;
 
