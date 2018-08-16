@@ -66,14 +66,14 @@ class AI implements HandObserver {
         // console.log(2, nonFullHands(2));
         // console.log(3, nonFullHands(3));
 
-        /** first index is suit, second is player */
+        /** first index is suit, second is player, excludes the player speculating */
         const handsThatAllowSuit: boolean[][] = [];
         for (let suit = 0; suit < 4; ++suit) {
             handsThatAllowSuit.push([
-                ! (this.playerSeenVoidInSuits[0][suit]),
-                ! (this.playerSeenVoidInSuits[1][suit]),
-                ! (this.playerSeenVoidInSuits[2][suit]),
-                ! (this.playerSeenVoidInSuits[3][suit])
+                (! (this.playerSeenVoidInSuits[0][suit])) && this.whoAmI !== 0,
+                (! (this.playerSeenVoidInSuits[1][suit])) && this.whoAmI !== 1,
+                (! (this.playerSeenVoidInSuits[2][suit])) && this.whoAmI !== 2,
+                (! (this.playerSeenVoidInSuits[3][suit])) && this.whoAmI !== 3
             ]);
         }
         // console.log("handsThatAllowSuit:");
