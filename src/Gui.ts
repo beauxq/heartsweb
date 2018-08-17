@@ -4,6 +4,7 @@ import Game from "./Game";
 import AI from "./AI";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
+import Waiter from "./Waiter";
 
 function workerFunction() {
     // to run without a server
@@ -40,9 +41,13 @@ class Gui implements HandObserver {
     private receivedCards: Card[] = [];
 
     private showingPassedCards: boolean = false;
-    private waiting: boolean = false;
-    private clickSkips: boolean = true;
-    private currentWait: any = null;
+    
+    private waiter: Waiter = new Waiter();
+    // private waitingTime: boolean = false;
+    // private clickSkips: boolean = true;
+    // private currentWait: any = null;
+    // private needMessage: boolean = false;
+    // private haveMessage: boolean = false;
 
     public resize() {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
@@ -198,7 +203,6 @@ class Gui implements HandObserver {
     }
 
     drawHand(cardClick: Function) {
-        // TODO: cards bigger with overlap
         const hand = this.game.hand.getHand(0);
         const cardCount = hand.length();
 
@@ -363,7 +367,7 @@ class Gui implements HandObserver {
     }
 
     public draw() {
-        console.log("gui draw here");
+        // console.log("gui draw here");
         this.context.fillStyle = "purple";
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
         this.clickables.length = 0;
@@ -395,11 +399,16 @@ class Gui implements HandObserver {
 
     public click(e: MouseEvent) {
         console.log("gui click: ", e.x, e.y);
-        if (this.waiting && this.clickSkips) {
-            clearTimeout(this.currentWait);
-            this.waiting = false;
+        if (this.waiter.click()) {
             return;
         }
+        /*
+        if (this.waitingTime && this.clickSkips) {
+            clearTimeout(this.currentWait);
+            this.waitingTime = false;
+            return;
+        }
+        */
 
         // have to go through clickables backwards
         // because the one that is drawn last is on top and thus has priority for click
@@ -416,7 +425,8 @@ class Gui implements HandObserver {
             // single card
             // play it
             console.log("received message from worker, turn:", this.game.hand.getWhoseTurn());
-            this.game.hand.playCard(new Card(messageData));
+            this.waiter.gotMessage(new Card(messageData));
+            // this.game.hand.playCard(new Card(messageData));
         }
         else {
             // passing data
@@ -437,30 +447,42 @@ class Gui implements HandObserver {
      * @param seconds 
      * @param allowSkipWithClick clicking the mouse skips the wait
      */
-    private drawWait(seconds: number, allowSkipWithClick: boolean) {
-        this.waiting = true;
+    private drawWait(seconds: number, allowSkipWithClick: boolean, forPlay: boolean) {
+        this.draw();
+        return this.waiter.wait(seconds, allowSkipWithClick, forPlay);
+        /*
+        this.waitingTime = true;
         this.clickSkips = allowSkipWithClick;
         this.currentWait = setTimeout(() => {
-            this.waiting = false;
+            this.waitingTime = false;
         }, seconds * 1000);
-        this.draw();
+        */
         // console.log("just called draw from drawWait, cardsToPass length:", this.cardsToPass.length());
+        /*
         return new Promise((resolve, reject) => {
             let intervalTimer: any;
             intervalTimer = setInterval(() => {
-                if (! this.waiting) {
+                if (! this.waitingTime) {
                     clearInterval(intervalTimer);
                     resolve();
                 }
             }, 50);
         });
+        */
     }
 
     private showReceivedCards() {
         this.showingPassedCards = true;
-        return this.drawWait(3, true).then(() => {
+        return this.drawWait(3, true, false).then(() => {
             this.showingPassedCards = false;
             this.cardsToPass.clear();
+        });
+    }
+
+    private computerTurn() {
+        this.workerMessagePlay();
+        this.drawWait(0.5, true, true).then((messageData) => {
+            this.game.hand.playCard(messageData as Card);
         });
     }
 
@@ -488,9 +510,11 @@ class Gui implements HandObserver {
     }
     resetTrick(): void {
         if (this.game.hand.getWhoseTurn() !== 0) {
-            this.workerMessagePlay();
+            this.computerTurn();
         }
-        this.draw();
+        else {
+            this.draw();
+        }
     }
     pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
         if (fromPlayer === 0) {
@@ -518,7 +542,7 @@ class Gui implements HandObserver {
         // TODO: show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {
             this.game.hand.endTrick();
-            this.drawWait(2, true).then(() => {
+            this.drawWait(2, true, false).then(() => {
                 if (this.game.hand.getHand(0).length()) {
                     this.game.hand.resetTrick();
                 }
@@ -537,9 +561,11 @@ class Gui implements HandObserver {
             });
         }
         else if (this.game.hand.getWhoseTurn() !== 0) {  // (and not last turn in trick)
-            this.workerMessagePlay();
+            this.computerTurn();
         }
-        this.draw();
+        else {  // human turn
+            this.draw();
+        }
     }
 }
 

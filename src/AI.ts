@@ -300,12 +300,12 @@ class AI implements HandObserver {
     }
 
     public seeCardPlayed(card: Card, byPlayer: number, showingOnlyHearts: boolean = false) {
-        console.log("seeing a card played", this.whoAmI);
-        console.log(card.str());
-        console.log("see card unknown length before:", this.unknownCards.length());
+        // console.log("seeing a card played", this.whoAmI);
+        // console.log(card.str());
+        // console.log("see card unknown length before:", this.unknownCards.length());
         this.unknownCards.remove(card);
-        console.log("just removed because saw it played");
-        console.log("see card unknown length after:", this.unknownCards.length());
+        // console.log("just removed because saw it played");
+        // console.log("see card unknown length after:", this.unknownCards.length());
 
         // remove from passed cards
         let indexInPassed = -1;
@@ -485,7 +485,7 @@ class AI implements HandObserver {
         // TODO: I don't know a good way to tune these numbers
         // if shooting the moon is possible, higher probability of playing a random card
         /** out of 10 */
-        const randomIfLessThan = this.gameHand.getShootMoonPossible() ? 4 : 2;
+        const randomIfLessThan = this.gameHand.getShootMoonPossible() ? 5 : 2;
 
         if (Math.random() * 10 < randomIfLessThan) {
             const vc = this.gameHand.findValidChoices();
