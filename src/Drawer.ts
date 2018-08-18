@@ -36,7 +36,7 @@ class Drawer {
         console.log("card width set to", this.cardWidth);
     }
 
-    drawCard(card: Card, x: number, y: number) {
+    private drawCard(card: Card, x: number, y: number) {
         const assetX = (((card.value === 14) ? 1 : card.value) - 1) * Drawer.valueXMult;
         const assetY = Drawer.suitAssetYs[card.suit];
 
@@ -89,7 +89,7 @@ class Drawer {
 
     }
 
-    drawHand(cardClick: Function) {
+    public drawHand(cardClick: Function) {
         const hand = this.gui.game.hand.getHand(0);
         const cardCount = hand.length();
 
@@ -146,7 +146,7 @@ class Drawer {
         this.context.fillText("Hand: " + this.gui.game.hand.getScore(player), x, y + this.fontSize);
     }
 
-    drawScores() {
+    public drawScores() {
         this.context.font = "" + this.fontSize + "px Arial";
         this.context.fillStyle = "#88ff88";
         this.context.textBaseline = "top";

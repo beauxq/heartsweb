@@ -28,11 +28,6 @@ class Gui implements HandObserver {
     private showingPassedCards: boolean = false;
     
     private waiter: Waiter = new Waiter();
-    // private waitingTime: boolean = false;
-    // private clickSkips: boolean = true;
-    // private currentWait: any = null;
-    // private needMessage: boolean = false;
-    // private haveMessage: boolean = false;
 
     private drawer: Drawer;
 
@@ -90,9 +85,6 @@ class Gui implements HandObserver {
         // TODO: load saved game
         this.game.reset();
         this.game.hand.resetHand(this.game.getPassingDirection());
-        // these are in resetHand observer
-        // this.game.hand.dealHands();
-        // this.workerMessagePassing();
     }
 
     /**
@@ -137,9 +129,6 @@ class Gui implements HandObserver {
         const passingCards = this.cardsToPass.slice();
         this.cardsToPass.clear();
         this.game.hand.pass(0, this.game.getPassingDirection(), passingCards);
-        // console.log("about to clear from passButtonClick");
-        // this.cardsToPass.clear();
-        // this.draw();
     }
 
     public draw() {
@@ -177,13 +166,6 @@ class Gui implements HandObserver {
         if (this.waiter.click()) {
             return;
         }
-        /*
-        if (this.waitingTime && this.clickSkips) {
-            clearTimeout(this.currentWait);
-            this.waitingTime = false;
-            return;
-        }
-        */
 
         // have to go through clickables backwards
         // because the one that is drawn last is on top and thus has priority for click
@@ -201,7 +183,6 @@ class Gui implements HandObserver {
             // play it
             console.log("received message from worker, turn:", this.game.hand.getWhoseTurn());
             this.waiter.gotMessage(new Card(messageData));
-            // this.game.hand.playCard(new Card(messageData));
         }
         else {
             // passing data
@@ -225,25 +206,6 @@ class Gui implements HandObserver {
     private drawWait(seconds: number, allowSkipWithClick: boolean, forPlay: boolean) {
         this.draw();
         return this.waiter.wait(seconds, allowSkipWithClick, forPlay);
-        /*
-        this.waitingTime = true;
-        this.clickSkips = allowSkipWithClick;
-        this.currentWait = setTimeout(() => {
-            this.waitingTime = false;
-        }, seconds * 1000);
-        */
-        // console.log("just called draw from drawWait, cardsToPass length:", this.cardsToPass.length());
-        /*
-        return new Promise((resolve, reject) => {
-            let intervalTimer: any;
-            intervalTimer = setInterval(() => {
-                if (! this.waitingTime) {
-                    clearInterval(intervalTimer);
-                    resolve();
-                }
-            }, 50);
-        });
-        */
     }
 
     private showReceivedCards() {
