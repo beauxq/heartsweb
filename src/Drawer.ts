@@ -27,6 +27,10 @@ class Drawer {
         this.context = context;
         this.assets = assets;
         this.gui = gui;
+        
+        // this doesn't work, don't know why (see to-do notes below)
+        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.textBaseline = "top";
     }
 
     public resize() {
@@ -147,9 +151,10 @@ class Drawer {
     }
 
     public drawScores() {
+        // TODO: optimization: figure out why putting these (font and baseline) in Drawer contructor doesn't work
         this.context.font = "" + this.fontSize + "px Arial";
-        this.context.fillStyle = "#88ff88";
         this.context.textBaseline = "top";
+        this.context.fillStyle = "#88ff88";
         // player 0
         this.context.fillText("Game: " + this.gui.game.scores[0] + "  Hand: " + this.gui.game.hand.getScore(0),
                               5,
@@ -241,6 +246,33 @@ class Drawer {
         this.drawArrow(x, y, size, this.gui.game.getPassingDirection() + 1);
         this.gui.clickables.push(new Clickable(x, y, size, size,
                                  () => { this.gui.passButtonClick(); }));
+    }
+
+    public drawEnd(winners: number[]) {
+        this.context.fillStyle = "lightgray";
+        const lineCount = winners.length + 1;
+        const lineSize = this.fontSize + 2;
+
+        // TODO: get names from somewhere if they are customizeable
+        const winnerNames = ["You", "Left", "North", "3 o'Clock"];
+
+        const boxHeight = (lineCount + 2) * lineSize;
+        // TODO: max of measure text for all names and "winners" instead of winnerNames[3]
+        const boxWidth = this.context.measureText(winnerNames[3]).width + (2 * lineSize);
+        const boxX = (this.context.canvas.width - boxWidth) / 2;
+        const boxY = (this.context.canvas.height - boxHeight) / 2;
+
+        this.context.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+        // TODO: optimization: figure out why putting these (font and baseline) in Drawer contructor doesn't work
+        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.textBaseline = "top";
+        this.context.fillStyle = "black";
+
+        this.context.fillText("winner" + ((winners.length > 1) ? "s:" : ":"), boxX + lineSize, boxY + lineSize);
+        winners.forEach((player, index) => {
+            this.context.fillText(winnerNames[player], boxX + lineSize, boxY + ((index + 2) * lineSize));
+        });
     }
 
     public background() {

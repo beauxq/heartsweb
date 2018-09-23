@@ -155,6 +155,9 @@ class Gui implements HandObserver {
             this.drawer.drawHand((card: Card) => { console.log("clicked card while showing passed, but you shouldn't see this because click goes to skipping timer"); });
             this.drawer.drawCardsToPass();
         }
+        else if (this.game.winners.length) {  // game over
+            this.drawer.drawEnd(this.game.winners);
+        }
         else {
             this.drawer.drawHand((card: Card) => { this.playCard(card); });
             this.drawer.drawPlayedCards();
@@ -289,7 +292,11 @@ class Gui implements HandObserver {
                     this.game.endHand();
                     // check for game end
                     if (this.game.winners.length) {
-                        // TODO: game end
+                        // game end
+                        this.drawWait(10000, true, false).then(() => {
+                            this.game.reset();
+                            this.game.hand.resetHand(this.game.getPassingDirection());
+                        });
                     }
                     else {  // game not over
                         this.game.hand.resetHand(this.game.getPassingDirection());
