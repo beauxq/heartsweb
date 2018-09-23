@@ -4,7 +4,7 @@ import GameHand from "./GameHand";
 import Card from "./Card";
 
 function shuffleArray(array: any[]) {
-    for (let i = array.length - 1; i > 0; i--) {
+    for (let i = array.length - 1; i > 0; --i) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
@@ -157,8 +157,8 @@ class AI implements HandObserver {
                     // assert: double swap is possible
                     /* questionable assertion:
                         There is a 3rd hand that is not involved in the previously used hands in this algorithm.
-                        One hand is full and is the only one that allows *this_card_itr
-                        A second hand is the only one not full and doesn't allow this card or any card in the first hand.
+                        One hand is full and is the only one that allows  thisCard
+                        A second hand is the only one not full and doesn't allow thisCard or any card in the first hand.
                         The 3rd hand is full and must allow some suit that is in the first hand
                                              and must have some suit that is allowed in the second hand. */
 

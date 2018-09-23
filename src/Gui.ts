@@ -205,6 +205,7 @@ class Gui implements HandObserver {
      * returns a promise resolved when were done waiting
      * @param seconds 
      * @param allowSkipWithClick clicking the mouse skips the wait
+     * @param forPlay waiting for the next player to play a card
      */
     private drawWait(seconds: number, allowSkipWithClick: boolean, forPlay: boolean) {
         this.draw();
@@ -279,7 +280,7 @@ class Gui implements HandObserver {
     }
     seeCardPlayed(card: Card, byPlayer: Number, showingOnlyHearts: boolean) {
         console.log("see card played in GUI");
-        // TODO: show card for 1 second, while next turn thinks
+        // show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {
             this.game.hand.endTrick();
             this.drawWait(2, true, false).then(() => {
@@ -293,7 +294,7 @@ class Gui implements HandObserver {
                     // check for game end
                     if (this.game.winners.length) {
                         // game end
-                        this.drawWait(10000, true, false).then(() => {
+                        this.drawWait(1000000, true, false).then(() => {
                             this.game.reset();
                             this.game.hand.resetHand(this.game.getPassingDirection());
                         });

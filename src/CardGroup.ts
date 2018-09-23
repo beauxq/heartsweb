@@ -117,6 +117,7 @@ class CardGroup {
         arrayToInsertTo.splice(i, 0, card);
     }
 
+    /** removes all the cards from this CardGroup */
     public clear() {
         this.cards.forEach((suitArray) => {
             suitArray.length = 0;
@@ -147,6 +148,7 @@ class CardGroup {
         return this.cards[suit];
     }
 
+    /** returns an array with all the cards in this CardGroup */
     public slice(): Card[] {
         return this.cards[0].concat(this.cards[1], this.cards[2], this.cards[3]);
     }
