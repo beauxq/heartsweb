@@ -29,6 +29,10 @@ class AI implements HandObserver {
         // TODO: find out if I need this... I don't think I do
     }
 
+    public setHand(hand: GameHand) {
+        this.gameHand = hand;
+    }
+
     public choosePassingCards() {
         // TODO: AI
         // for now, random 3

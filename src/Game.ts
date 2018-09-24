@@ -8,6 +8,18 @@ class Game {
     public winners: number[] = [];  // empty if game is not finished
     private passingIndex: number = 0;
 
+    public constructor();
+    public constructor(game: Game);
+    public constructor(game?: Game|undefined) {
+        if (game) {
+            // copy constructor
+            this.hand = new GameHand(game.hand);
+            this.scores = game.scores;
+            this.winners = game.winners;
+            this.passingIndex = game.passingIndex;
+        }
+    }
+
     public reset() {
         this.winners.length = 0;
         this.passingIndex = 0;

@@ -18,8 +18,8 @@ class Gui implements HandObserver {
 
     public clickables: Clickable[] = [];
 
-    public game: Game;
-    private ais: (AI|null)[];
+    public game: Game = new Game();
+    private ais: (AI|null)[] = [];
 
     public cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
@@ -30,6 +30,8 @@ class Gui implements HandObserver {
     private waiter: Waiter = new Waiter();
 
     private drawer: Drawer;
+
+    private storage: Storage;
 
     public resize() {
         this.drawer.resize();
@@ -58,7 +60,8 @@ class Gui implements HandObserver {
         this.worker.postMessage(cl);
     }
 
-    constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement) {
+    constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement, storage: Storage) {
+        this.storage = storage;
         this.drawer = new Drawer(context, assets, this);
 
         // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
@@ -69,22 +72,70 @@ class Gui implements HandObserver {
             this.handleMessage(message.data);
         });
 
-        this.game = new Game();
-        this.ais = [
-            null,  // unused
-            new AI(this.game.hand, 1),
-            new AI(this.game.hand, 2),
-            new AI(this.game.hand, 3)
-        ];
+        this.restore();
+    }
+
+    public save() {
+        const gameString = JSON.stringify(this.game, (key, value) => {
+            if (key === "observerList") {
+                return undefined;
+            }
+            return value;
+        });
+        const aiString = JSON.stringify(this.ais, (key, value) => {
+            if (key === "observerList") {
+                return undefined;
+            }
+            return value;
+        })
+        this.storage.setItem("game", gameString);
+        this.storage.setItem("ais", aiString);
+        this.storage.setItem("hpp", this.humanPlayerPassed ? "t" : "f");
+    }
+
+    /** from local storage */
+    private restore() {
+        const gameString = this.storage.getItem("game");
+        const aiString = this.storage.getItem("ais");
+        const hpp = this.storage.getItem("hpp");
+
+        this.humanPlayerPassed = hpp === "t";
+
+        if (gameString && aiString) {
+            const ais = JSON.parse(aiString);
+            this.game = new Game(JSON.parse(gameString));
+            this.ais = [
+                null,  // unused
+                new AI(ais[1]),
+                new AI(ais[2]),
+                new AI(ais[3])
+            ];
+            (this.ais[1] as AI).setHand(this.game.hand);
+            (this.ais[2] as AI).setHand(this.game.hand);
+            (this.ais[3] as AI).setHand(this.game.hand);
+        }
+        else {
+            this.game = new Game();
+            this.ais = [
+                null,  // unused
+                new AI(this.game.hand, 1),
+                new AI(this.game.hand, 2),
+                new AI(this.game.hand, 3)
+            ];
+        }
 
         for (let player = 1; player < 4; ++player) {
             this.game.hand.registerObserver(this.ais[player] as AI);
         }
         this.game.hand.registerObserver(this);
 
-        // TODO: load saved game
-        this.game.reset();
-        this.game.hand.resetHand(this.game.getPassingDirection());
+        if (gameString) {
+            this.draw();
+        }
+        else {
+            this.game.reset();
+            this.game.hand.resetHand(this.game.getPassingDirection());
+        }
     }
 
     /**
@@ -254,6 +305,7 @@ class Gui implements HandObserver {
             this.computerTurn();
         }
         else {
+            this.save();
             this.draw();
         }
     }
@@ -261,12 +313,9 @@ class Gui implements HandObserver {
         if (fromPlayer === 0) {
             this.humanPlayerPassed = true;
         }
-        else if (toPlayer === 0) {
-            // saved passed cards
-            this.receivedCards = cards.slice();
-        }
         if (this.game.hand.getPassCount() === 4) {
             // show passed cards
+            this.receivedCards = this.game.hand.getPassedCardsToPlayer(0).slice();
             // console.log("about to clear from pass function");
             this.cardsToPass.clear();
             this.cardsToPass.insert(this.receivedCards[0]);
@@ -275,6 +324,9 @@ class Gui implements HandObserver {
             this.showReceivedCards().then(() => {
                 this.game.hand.receivePassedCards();
             });
+        }
+        else if (this.game.hand.getPassCount() === 3) {
+            this.save();
         }
         this.draw();
     }
@@ -309,6 +361,7 @@ class Gui implements HandObserver {
             this.computerTurn();
         }
         else {  // human turn
+            this.save();
             this.draw();
         }
     }
