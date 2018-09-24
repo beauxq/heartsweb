@@ -75,7 +75,13 @@ class Gui implements HandObserver {
         this.restore();
     }
 
-    public save() {
+    private deleteSave() {
+        this.storage.removeItem("game");
+        this.storage.removeItem("ais");
+        this.storage.removeItem("hpp");
+    }
+
+    private save() {
         const gameString = JSON.stringify(this.game, (key, value) => {
             if (key === "observerList") {
                 return undefined;
@@ -345,6 +351,8 @@ class Gui implements HandObserver {
                     this.game.endHand();
                     // check for game end
                     if (this.game.winners.length) {
+                        // TODO: save stats
+                        this.deleteSave();
                         // game end
                         this.drawWait(1000000, true, false).then(() => {
                             this.game.reset();
