@@ -1,5 +1,12 @@
 import Card from './Card';
 
+function shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; --i) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
 class CardGroup {
     private cards: Card[][] = [
         [], [], [], []  // one for each suit
@@ -141,6 +148,16 @@ class CardGroup {
         const toReturn = this.at(index);
         this.remove(index);
         // @ts-ignore trust me, it will not be null
+        return toReturn;
+    }
+
+    public pickRandom(n: number) {
+        const toReturn: Card[] = [];
+        const indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        shuffleArray(indexes);
+        for (let i = 0; i < n; ++i) {
+            toReturn.push(this.at(indexes[i]) as Card);
+        }
         return toReturn;
     }
 

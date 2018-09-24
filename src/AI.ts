@@ -3,13 +3,6 @@ import CardGroup from "./CardGroup";
 import GameHand from "./GameHand";
 import Card from "./Card";
 
-function shuffleArray(array: any[]) {
-    for (let i = array.length - 1; i > 0; --i) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
 class AI implements HandObserver {
     /** number of tricks to simulate */
     static LEVEL: number = 10000;
@@ -34,14 +27,82 @@ class AI implements HandObserver {
     }
 
     public choosePassingCards() {
-        // TODO: AI
-        // for now, random 3
+        const t0 = performance.now();  // time test
+
         const hand = this.gameHand.getHand(this.whoAmI);
-        const count = hand.length();
-        const indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        shuffleArray(indexes);
-        const toReturn: Card[] = [hand.at(indexes[0]) as Card, hand.at(indexes[1]) as Card, hand.at(indexes[2]) as Card];
-        return toReturn;
+        const scoresForEachCombination: number[] = new Array(286).fill(0);
+        const cardsForEachCombination: Card[][] = new Array(286).fill([]);
+
+        let scoreIndex = 0;
+        for (let i = 0; i < 11; ++i) {
+            for (let j = i+1; j < 12; ++j) {
+                for (let k = j+1; k < 13; ++k) {
+                    const cards = [hand.at(i) as Card, hand.at(j) as Card, hand.at(k) as Card];
+                    cardsForEachCombination[scoreIndex] = cards;
+
+                    const loopCount = Math.floor(AI.LEVEL / (286 * 4)) + 1;
+
+                    for (let simNum = loopCount; simNum > 0; --simNum) {
+                        const sim = new GameHand(this.gameHand);
+                        const simAIS = [
+                            new AI(sim, 0),
+                            new AI(sim, 1),
+                            new AI(sim, 2),
+                            new AI(sim, 3)
+                        ];
+                        sim.setHands(this.speculateHands(sim.getPassingDirection()));
+
+                        // passing
+                        for (let playerToPass = 0; playerToPass < 4; ++playerToPass) {
+                            if (playerToPass === this.whoAmI) {
+                                sim.pass(playerToPass, (playerToPass + this.gameHand.getPassingDirection()) % 4, cards);
+                            }
+                            else {  // not the player who is simulating
+                                sim.pass(playerToPass,
+                                         (playerToPass + this.gameHand.getPassingDirection()) % 4,
+                                         sim.getHand(playerToPass).pickRandom(3));
+                            }
+                        }
+                        sim.receivePassedCards();
+
+                        // playing
+                        for (let tricks = 13; tricks > 0; --tricks) {
+                            sim.resetTrick();
+                            while (sim.turnsLeftInTrick()) {
+                                sim.playCard(simAIS[sim.getWhoseTurn()].simPlayCard());
+                            }
+                            sim.endTrick();
+                        }
+                        sim.endHand();
+                        // done playing
+
+                        scoresForEachCombination[scoreIndex] += sim.getScore(this.whoAmI);
+                    }
+                    
+                    ++scoreIndex;
+                }
+            }
+        }
+
+        let bestIndex = 0;
+        for (scoreIndex = 0; scoreIndex < 286; ++ scoreIndex) {
+            if (scoresForEachCombination[scoreIndex] < scoresForEachCombination[bestIndex]) {
+                bestIndex = scoreIndex;
+            }
+        }
+
+        const t1 = performance.now();
+
+        // for testing
+        console.log("player " + this.whoAmI + " had:")
+        hand.forEach((card) => {
+            console.log(card.str());
+        });
+        console.log("and chose to pass:");
+        console.log(cardsForEachCombination[bestIndex]);
+        console.log("time: " + (t1-t0));
+
+        return cardsForEachCombination[bestIndex];
     }
 
     private speculateHands(passingDirection: number): CardGroup[] {
@@ -512,7 +573,7 @@ class AI implements HandObserver {
         // console.log(scoreForEachVC);
         const loopCount = Math.floor(
             (AI.LEVEL / validChoices.length) / this.gameHand.getHand(this.gameHand.getWhoseTurn()).length()
-        );
+        ) + 1;
 
         for (let i = loopCount; i > 0; --i) {
             validChoices.forEach((card, index) => {
