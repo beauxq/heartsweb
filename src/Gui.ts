@@ -6,6 +6,7 @@ import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
 import Waiter from "./Waiter";
 import Drawer from "./Drawer";
+import Stats from "./Stats";
 
 function workerFunction() {
     // to run without a server
@@ -32,6 +33,8 @@ class Gui implements HandObserver {
     private drawer: Drawer;
 
     private storage: Storage;
+
+    private stats: Stats;
 
     public resize() {
         this.drawer.resize();
@@ -63,6 +66,7 @@ class Gui implements HandObserver {
     constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement, storage: Storage) {
         this.storage = storage;
         this.drawer = new Drawer(context, assets, this);
+        this.stats = new Stats(storage);
 
         // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
         this.worker = new Worker("workerbundle.js");
@@ -340,6 +344,12 @@ class Gui implements HandObserver {
         console.log("see card played in GUI");
         // show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {
+            if (this.game.hand.getPlayedCards().some((card) => {
+                return card.value === 12 && card.suit === Card.SPADES;
+            })) {
+                this.stats.queen(this.game.hand.getTrickLeader());
+            }
+
             this.game.hand.endTrick();
             this.drawWait(2, true, false).then(() => {
                 if (this.game.hand.getHand(0).length()) {
@@ -347,13 +357,14 @@ class Gui implements HandObserver {
                 }
                 else {
                     console.log("last card of hand played");
-                    this.game.hand.endHand();
+                    const whoMoon = this.game.hand.endHand();
                     this.game.endHand();
+                    this.stats.hand(whoMoon);
                     // check for game end
                     if (this.game.winners.length) {
-                        // TODO: save stats
-                        this.deleteSave();
                         // game end
+                        this.stats.game(this.game.scores);
+                        this.deleteSave();
                         this.drawWait(1000000, true, false).then(() => {
                             this.game.reset();
                             this.game.hand.resetHand(this.game.getPassingDirection());
