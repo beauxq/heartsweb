@@ -365,9 +365,11 @@ class Gui implements HandObserver {
                         // game end
                         this.stats.game(this.game.scores);
                         this.deleteSave();
-                        this.drawWait(1000000, true, false).then(() => {
-                            this.game.reset();
-                            this.game.hand.resetHand(this.game.getPassingDirection());
+                        this.drawWait(2, false, false).then(() => {
+                            this.drawWait(1000000, true, false).then(() => {
+                                this.game.reset();
+                                this.game.hand.resetHand(this.game.getPassingDirection());
+                            });
                         });
                     }
                     else {  // game not over
