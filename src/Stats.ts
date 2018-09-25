@@ -1,3 +1,5 @@
+// TODO: a way to see stats
+
 class StatData {
     public gameCount = 0;
     public handCount = 0;

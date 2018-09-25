@@ -34,7 +34,6 @@ ctx.addEventListener('message', (message) => {
         const ai = new AI(message.data);
         ai.observeSelf();
 
-        // TODO: AI
         ctx.postMessage(ai.dynamicPlay());
     }
 });
