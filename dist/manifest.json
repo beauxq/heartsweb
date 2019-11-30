@@ -1,0 +1,21 @@
+{
+    "short_name": "Hearts",
+    "name": "Hearts PWA",
+    "icons": [
+        {
+            "src": "/icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/bundle.js",
+    "background_color": "#6a0dad",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#6a0dad"
+}
