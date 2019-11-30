@@ -36,8 +36,8 @@ class Gui implements HandObserver {
 
     private stats: Stats;
 
-    public resize() {
-        this.drawer.resize();
+    public resize(zoom: number) {
+        this.drawer.resize(zoom);
     }
 
     private workerMessagePassing() {

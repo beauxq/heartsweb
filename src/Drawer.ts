@@ -33,9 +33,9 @@ class Drawer {
         this.context.textBaseline = "top";
     }
 
-    public resize() {
+    public resize(zoom: number) {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
-        this.cardWidth = this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
+        this.cardWidth = zoom * this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
         this.cardHeight = this.cardWidth * Drawer.assetHeight / Drawer.assetWidth;
         console.log("card width set to", this.cardWidth);
     }
@@ -121,8 +121,11 @@ class Drawer {
         // console.log("card width:", this.cardWidth);
         const maxRowLength = Math.max(rows[0].length, rows[1].length);
         // console.log("max row length:", maxRowLength);
+        /** number of cards that can fit on a row without overlapping */
+        const cardLimitPerRow = Math.floor(this.context.canvas.width / (this.cardWidth * 1.05));
+        /** x distance from left side of one card to left side of the next */
         const cardSpaceWidth =
-            ((this.vertical && maxRowLength > 5) || (maxRowLength > 10)) ?
+            (maxRowLength > cardLimitPerRow) ?
             (this.context.canvas.width - (this.cardWidth + 10)) / (maxRowLength - 1) :
             this.cardWidth * 1.05;
         // console.log("cardSpaceWidth:", cardSpaceWidth);
