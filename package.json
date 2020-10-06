@@ -18,15 +18,15 @@
   },
   "homepage": "https://github.com/beauxq/heartsweb#readme",
   "dependencies": {
-    "@types/node": "^10.5.2",
+    "@types/node": "^10.17.37",
     "@types/readline-sync": "^1.4.3",
-    "npm": "^6.1.0",
+    "npm": "^6.14.8",
     "readline-sync": "^1.4.9",
     "typescript": "^2.9.2"
   },
   "devDependencies": {
     "serve": "^9.3.0",
-    "webpack": "^4.16.1",
-    "webpack-cli": "^3.1.0"
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
   }
 }
