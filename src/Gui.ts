@@ -204,9 +204,7 @@ class Gui implements HandObserver {
             this.drawer.drawHand((card: Card) => { this.addToPass(card); });
             this.drawer.drawCardsToPass();
 
-            if (this.cardsToPass.length() === 3) {
-                this.drawer.drawPassButton();
-            }
+            this.drawer.drawPassButton(this.cardsToPass.length() === 3);
         }
         else if (this.game.hand.getPassCount() < 4) {
             this.drawer.drawHand(() => { console.log("clicked on card when human already passed"); });

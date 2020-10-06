@@ -214,7 +214,8 @@ class Drawer {
      * @param size 
      * @param direction number of quadrants clockwise from right
      */
-    private drawArrow(x: number, y: number, size: number, direction: number) {
+    private drawArrow(x: number, y: number, size: number, direction: number, opaque: boolean) {
+        this.context.globalAlpha = opaque ? 1 : 0.5;
         this.context.fillStyle = "orange";
 
         this.context.translate(x + size/2, y + size/2);
@@ -230,12 +231,13 @@ class Drawer {
         this.context.lineTo(0, size / 2);
         this.context.fill();
 
-        // undo rotation and translation
+        // undo rotation and translation and alpha
         this.context.rotate(0 - direction * Math.PI / 2);
         this.context.translate(0 - (x + size/2), 0 - (y + size/2));
+        this.context.globalAlpha = 1;
     }
 
-    public drawPassButton() {
+    public drawPassButton(opaque: boolean) {
         const size = 80;
         const x = this.context.canvas.width / 2 - (size / 2);
         const y =
@@ -246,7 +248,7 @@ class Drawer {
              Drawer.verticalPadding +
              size);
         
-        this.drawArrow(x, y, size, this.gui.game.getPassingDirection() + 1);
+        this.drawArrow(x, y, size, this.gui.game.getPassingDirection() + 1, opaque);
         this.gui.clickables.push(new Clickable(x, y, size, size,
                                  () => { this.gui.passButtonClick(); }));
     }
