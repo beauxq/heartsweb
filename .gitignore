@@ -4,3 +4,4 @@ Co.png
 dist/bundle.js
 dist/workerbundle.js
 *.xcf
+.vscode
