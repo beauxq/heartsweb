@@ -186,6 +186,7 @@ class Gui implements HandObserver {
     }
 
     public passButtonClick() {
+        if (! (this.cardsToPass.length() > 2)) { return; }
         this.humanPlayerPassed = true;
         const passingCards = this.cardsToPass.slice();
         this.cardsToPass.clear();
