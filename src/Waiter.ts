@@ -20,7 +20,7 @@ class Waiter {
     }
 
     /**
-     * returns a promise resolved when were done waiting
+     * returns a promise resolved when we're done waiting
      * @param seconds 
      * @param allowSkipWithClick clicking the mouse skips the time requirement
      * @param requireMessage gotMessage must be called for the promise to resolve
@@ -38,7 +38,7 @@ class Waiter {
             this.checkFinish();
         }, seconds * 1000);
         
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             this.resolve = resolve;
             this.checkFinish();
         });

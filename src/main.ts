@@ -5,7 +5,7 @@ import Card from "./Card";
 
 function showHandAndGetValid(gh: GameHand) {
     console.log("\n");
-    gh.getHand(gh.getWhoseTurn()).forEach((card, index) => {
+    gh.getHand(gh.getWhoseTurn()).forEach((card, _index) => {
         process.stdout.write(card.str() + "  ");
     });
     const validChoices = gh.findValidChoices();

@@ -8,11 +8,13 @@ import Waiter from "./Waiter";
 import Drawer from "./Drawer";
 import Stats from "./Stats";
 
+/*
 function workerFunction() {
     // to run without a server
     // paste compiled and packed worker code here
     // and switch worker definition in constructor
 }
+*/
 
 class Gui implements HandObserver {
     private worker: Worker;
@@ -196,11 +198,11 @@ class Gui implements HandObserver {
             this.drawer.drawPassButton(this.cardsToPass.length() === 3);
         }
         else if (this.game.hand.getPassCount() < 4) {
-            this.drawer.drawHand(() => { console.log("clicked on card when human already passed"); });
+            this.drawer.drawHand((card: Card) => { console.log("clicked on card " + card.str() + " when human already passed"); });
         }
         else if (this.showingPassedCards) {
             console.log("got draw in showing passed cards, length:", this.cardsToPass.length());
-            this.drawer.drawHand((card: Card) => { console.log("clicked card while showing passed, but you shouldn't see this because click goes to skipping timer"); });
+            this.drawer.drawHand((card: Card) => { console.log("clicked card " + card.str() + " while showing passed, but you shouldn't see this because click goes to skipping timer"); });
             this.drawer.drawCardsToPass();
         }
         else if (this.game.winners.length) {  // game over
@@ -306,7 +308,7 @@ class Gui implements HandObserver {
             this.draw();
         }
     }
-    pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
+    pass(fromPlayer: number, _toPlayer: number, _cards: Card[]) {
         if (fromPlayer === 0) {
             this.humanPlayerPassed = true;
         }
@@ -327,7 +329,7 @@ class Gui implements HandObserver {
         }
         this.draw();
     }
-    seeCardPlayed(card: Card, byPlayer: Number, showingOnlyHearts: boolean) {
+    seeCardPlayed(_card: Card, _byPlayer: Number, _showingOnlyHearts: boolean) {
         console.log("see card played in GUI");
         // show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {

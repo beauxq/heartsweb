@@ -347,7 +347,7 @@ class AI implements HandObserver {
         });
     }
 
-    public pass(fromPlayer: number, toPlayer: number, cards: Card[]) {
+    public pass(fromPlayer: number, _toPlayer: number, cards: Card[]) {
         if (fromPlayer === this.whoAmI) {
             this.cardsIPassed = cards.slice();
         }

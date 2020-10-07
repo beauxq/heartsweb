@@ -93,7 +93,7 @@ class Drawer {
 
     }
 
-    public drawHand(cardClick: Function) {
+    public drawHand(cardClick: (card: Card) => void) {
         const hand = this.gui.game.hand.getHand(0);
         const cardCount = hand.length();
 
@@ -154,7 +154,7 @@ class Drawer {
     }
 
     public drawScores() {
-        // TODO: optimization: figure out why putting these (font and baseline) in Drawer contructor doesn't work
+        // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
         this.context.font = "" + this.fontSize + "px Arial";
         this.context.textBaseline = "top";
         this.context.fillStyle = "#88ff88";
