@@ -40,13 +40,16 @@ class Gui implements HandObserver {
         this.drawer.resize(zoom);
     }
 
+    /** you can't stringify Game or AI with observerList
+     *  because it's infinitely recursive
+     */
+    static filterOutObserverList(key: string, value: any) {
+        return (key === "observerList") ? undefined : value;
+    }
+
     private workerMessagePassing() {
-        const cl = JSON.parse(JSON.stringify(this.ais, (key, value) => {
-            if (key === "observerList") {
-                return undefined;
-            }
-            return value;
-        }));
+        const cl = JSON.parse(JSON.stringify(this.ais,
+                                             Gui.filterOutObserverList));
         console.log("clone:");
         console.log(cl);
         this.worker.postMessage(cl);
@@ -54,12 +57,8 @@ class Gui implements HandObserver {
 
     private workerMessagePlay() {
         console.log("sending play message to worker, turn:", this.game.hand.getWhoseTurn());
-        const cl = JSON.parse(JSON.stringify(this.ais[this.game.hand.getWhoseTurn()], (key, value) => {
-            if (key === "observerList") {
-                return undefined;
-            }
-            return value;
-        }));
+        const cl = JSON.parse(JSON.stringify(this.ais[this.game.hand.getWhoseTurn()],
+                                             Gui.filterOutObserverList));
         this.worker.postMessage(cl);
     }
 
@@ -86,18 +85,10 @@ class Gui implements HandObserver {
     }
 
     private save() {
-        const gameString = JSON.stringify(this.game, (key, value) => {
-            if (key === "observerList") {
-                return undefined;
-            }
-            return value;
-        });
-        const aiString = JSON.stringify(this.ais, (key, value) => {
-            if (key === "observerList") {
-                return undefined;
-            }
-            return value;
-        })
+        const gameString = JSON.stringify(this.game,
+                                          Gui.filterOutObserverList);
+        const aiString = JSON.stringify(this.ais,
+                                        Gui.filterOutObserverList);
         this.storage.setItem("game", gameString);
         this.storage.setItem("ais", aiString);
         this.storage.setItem("hpp", this.humanPlayerPassed ? "t" : "f");
@@ -175,10 +166,7 @@ class Gui implements HandObserver {
         console.log("clicked to play", card.str());
         const validChoices = this.game.hand.findValidChoices();
         if (validChoices.some((validCard) => {
-                if (card.value === validCard.value && card.suit === validCard.suit) {
-                    return true;
-                }
-                return false;
+                return (card.value === validCard.value && card.suit === validCard.suit);
             })
         ) {
             this.game.hand.playCard(card);
