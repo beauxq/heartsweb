@@ -191,7 +191,6 @@ class Gui implements HandObserver {
             //passing
             this.drawer.drawHand((card: Card) => { this.addToPass(card); });
             this.drawer.drawCardsToPass();
-
             this.drawer.drawPassButton(this.cardsToPass.length() === 3);
         }
         else if (this.game.hand.getPassCount() < 4) {
@@ -203,11 +202,13 @@ class Gui implements HandObserver {
             this.drawer.drawCardsToPass();
         }
         else if (this.game.winners.length) {  // game over
+            this.drawer.drawPreviousTrick();  // I think this doesn't work
             this.drawer.drawEnd(this.game.winners);
         }
         else {
             this.drawer.drawHand((card: Card) => { this.playCard(card); });
             this.drawer.drawPlayedCards();
+            this.drawer.drawPreviousTrick();
         }
     }
 
@@ -327,6 +328,7 @@ class Gui implements HandObserver {
         console.log("see card played in GUI");
         // show card for 1 second, while next turn thinks
         if (this.game.hand.getPlayedCardCount() === 4) {
+            // if the queen is in this trick, add to stats
             if (this.game.hand.getPlayedCards().some((card) => {
                 return card.value === 12 && card.suit === Card.SPADES;
             })) {

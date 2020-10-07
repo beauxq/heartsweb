@@ -112,9 +112,7 @@ class Drawer {
 
     public setAiCards() {
         for (let player = 1; player < 4; ++player) {
-            // locations where players are sitting proportional to canvas
-            const x = (player - 1.6);
-            const y = (player === 2) ? -0.5 : 0.2;
+            const [x, y] = Drawer.playerPosition(player);
             this.gui.game.hand.getHand(player).forEach((card, _index) => {
                 this.cardAnimations.get(card.hash())?.setLocation(x, y);
             });
@@ -295,6 +293,26 @@ class Drawer {
         if (playedCards[3].value) {
             this.drawCard(playedCards[3], x + (10 + this.cardWidth), y - (this.cardHeight / 2 + 5));
         }
+    }
+
+    /** animated going away */
+    public drawPreviousTrick() {
+        if (this.gui.game.hand.getPlayedCardCount() !== 4) {
+            const tr = this.gui.game.hand.getPreviousTrick();
+            const [destX, destY] = Drawer.playerPosition(tr.whoWon);
+            // console.log("prev trick x " + destX + "  y " + destY);
+            for (let card of tr.cards) {
+                this.drawCard(card,
+                            destX * this.context.canvas.width,
+                            destY * this.context.canvas.height);
+            }
+        }
+    }
+
+    /** locations where players are sitting proportional to canvas */
+    static playerPosition(player: number): [number, number] {
+        return [player ? (player - 1.6) : 0.4,
+                (player === 2) ? -0.5 : ((player === 0) ? 1.5 : 0.2)];
     }
 
     /**

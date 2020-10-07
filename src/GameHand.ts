@@ -4,6 +4,11 @@ import HandObserver from "./HandObserver";
 
 const nullCard = new Card(0, 0);
 
+interface TrickRecord {
+    cards: Card[],
+    whoWon: number
+}
+
 /**
  * each hand, call these in this order:
  * resetHand();
@@ -29,6 +34,9 @@ class GameHand {
     private whoseTurn: number = 0;
     private heartsBroken: boolean = false;
     private pointsPlayedThisTrick: boolean = false;
+
+    /** updates in `endTrick` */
+    private trickHistory: TrickRecord[] = [];
 
     private shootMoonPossible: boolean = true;
 
@@ -60,6 +68,10 @@ class GameHand {
             this.whoseTurn = gameHand.whoseTurn;
             this.heartsBroken = gameHand.heartsBroken;
             this.pointsPlayedThisTrick = gameHand.pointsPlayedThisTrick;
+            this.trickHistory = gameHand.trickHistory.map((tr) => { return {
+                cards: tr.cards.map((card) => new Card(card)),
+                whoWon: tr.whoWon
+            };});
             this.shootMoonPossible = gameHand.shootMoonPossible;
             // don't copy observer list
         }
@@ -105,6 +117,18 @@ class GameHand {
         return this.playedCardCount;
     }
 
+    /** changes with `GameHand.endTrick()`
+     *  
+     *  Between `endTrick` and `resetTrick`, this returns the same cards as `getPlayedCards`
+     */
+    public getPreviousTrick() {
+        const l = this.trickHistory.length;
+        return l ? this.trickHistory[l - 1] : {
+            cards: [],
+            whoWon: 0
+        };
+    }
+
     public getTrickLeader() {
         return this.trickLeader;
     }
@@ -138,6 +162,7 @@ class GameHand {
         }
         this.passCount = 0;
         this.heartsBroken = false;
+        this.trickHistory.length = 0;
         this.shootMoonPossible = true;
 
         this.observerList.forEach((ob) => { ob.resetHand(); });
@@ -278,7 +303,10 @@ class GameHand {
 
         this.whoseTurn = this.trickLeader;
 
-        // TODO: history of tricks?
+        this.trickHistory.push({
+            cards: this.playedCards.slice(),
+            whoWon: this.trickLeader
+        });
     }
 
     /**
