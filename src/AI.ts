@@ -8,6 +8,9 @@ class AI implements HandObserver {
     static LEVEL: number = 10000;
 
     private unknownCards: CardGroup = new CardGroup();
+    /** example: 
+     *  `playerSeenVoidInSuits[2][Card.CLUBS]`
+     *  is whether player 2 has shown that they don't have any clubs */
     private playerSeenVoidInSuits: boolean[][] = [];
 
     /** and not played yet, removed from here when they are seen played */
