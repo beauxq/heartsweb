@@ -88,6 +88,10 @@ class Card {
 
         return to_return;
     }
+
+    public hash() {
+        return (this.value << 2) + this.suit;
+    }
 }
 
 export default Card;

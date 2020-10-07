@@ -137,6 +137,7 @@ class Gui implements HandObserver {
             this.game.reset();
             this.game.hand.resetHand(this.game.getPassingDirection());
         }
+        this.drawer.setAiCards();
     }
 
     /**
@@ -285,11 +286,13 @@ class Gui implements HandObserver {
         else {
             this.game.hand.setPassed();
             this.humanPlayerPassed = true;
+            this.drawer.setAiCards();
             this.game.hand.resetTrick();
         }
     }
     receivePassedCards(): void {
         console.log("gui sees received passed cards");
+        this.drawer.setAiCards();
         this.game.hand.resetTrick();
     }
     resetTrick(): void {

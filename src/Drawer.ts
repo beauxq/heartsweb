@@ -3,6 +3,66 @@ import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
 
+const framesPerCardAnimation = 10;
+
+class CardAnimation {
+    private fromX: number;
+    private fromY: number;
+    private frame: number;
+    private toX: number;
+    private toY: number;
+    private endFrame: number;
+
+    constructor() {
+        this.fromX = 0.4;
+        this.fromY = -1;
+        this.toX = this.fromX;
+        this.toY = this.fromY;
+        this.frame = 0;
+        this.endFrame = framesPerCardAnimation;
+    }
+
+    /** returns array of current x position and current y position
+     *  proportional to canvas width and height
+     */
+    public current() {
+        if (this.endFrame === 0) {
+            return [this.toX, this.toY];
+        }
+        const distanceX = this.toX - this.fromX;
+        const distanceY = this.toY - this.fromY;
+        const through = this.frame / this.endFrame;
+        return [through * distanceX + this.fromX, through * distanceY + this.fromY];
+    }
+
+    /** x and y proportional to canvas width and height */
+    public setLocation(x: number, y: number) {
+        this.fromX = x;
+        this.fromY = y;
+        this.toX = x;
+        this.toY = y;
+        this.frame = this.endFrame;
+    }
+
+    /** x and y proportional to canvas width and height */
+    public setDestination(x: number, y: number) {
+        if ((Math.abs(this.toX - x) > 0.0078125) || (Math.abs(this.toY - y) > 0.0078125)) {
+            // new destination
+            [this.fromX, this.fromY] = this.current();
+            this.toX = x;
+            this.toY = y;
+            this.endFrame = framesPerCardAnimation;
+            this.frame = 0;
+        }
+        return this.current();
+    }
+
+    /** frame */
+    public update() {
+        this.frame += (this.frame < this.endFrame) ? 1 : 0;
+    }
+}
+
 class Drawer {
     // coordinates from image file
     static suitAssetYs: number[] = [0, 528, 352, 176];
@@ -23,10 +83,20 @@ class Drawer {
 
     private gui: Gui;
 
+    /** key is Card.hash() */
+    private cardAnimations: Map<number, CardAnimation>;
+
     constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement, gui: Gui) {
         this.context = context;
         this.assets = assets;
         this.gui = gui;
+
+        this.cardAnimations = new Map();
+        for (let value = 2; value < 15; ++value) {
+            for (let suit = 0; suit < Card.SUIT_COUNT; ++suit) {
+                this.cardAnimations.set((value << 2) + suit, new CardAnimation());
+            }
+        }
         
         // this doesn't work, don't know why (see to-do notes below)
         this.context.font = "" + this.fontSize + "px Arial";
@@ -40,15 +110,35 @@ class Drawer {
         console.log("card width set to", this.cardWidth);
     }
 
+    public setAiCards() {
+        for (let player = 1; player < 4; ++player) {
+            // locations where players are sitting proportional to canvas
+            const x = (player - 1.6);
+            const y = (player === 2) ? -0.5 : 0.2;
+            this.gui.game.hand.getHand(player).forEach((card, _index) => {
+                this.cardAnimations.get(card.hash())?.setLocation(x, y);
+            });
+        }
+    }
+
     private drawCard(card: Card, x: number, y: number) {
         const assetX = (((card.value === 14) ? 1 : card.value) - 1) * Drawer.valueXMult;
         const assetY = Drawer.suitAssetYs[card.suit];
 
+        const canvas = this.context.canvas;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        const anim = this.cardAnimations.get(card.hash());
+        if (! anim) { throw "anim not found with card " + card.str(); }
+        const [propX, propY] = anim.setDestination(x / width, y / height);
+
         this.context.drawImage(this.assets,
                                assetX, assetY,
                                Drawer.assetWidth, Drawer.assetHeight,
-                               x, y,
+                               propX * width, propY * height,
                                this.cardWidth, this.cardHeight);
+        anim.update();
     }
 
     private static startsNewSuit(index: number, hand: CardGroup): boolean {
