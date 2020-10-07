@@ -78,6 +78,7 @@ class Gui implements HandObserver {
         });
 
         this.restore();
+        setInterval(() => { this.draw(); }, 40);
     }
 
     private deleteSave() {
@@ -132,10 +133,7 @@ class Gui implements HandObserver {
         }
         this.game.hand.registerObserver(this);
 
-        if (gameString) {
-            this.draw();
-        }
-        else {
+        if (! gameString) {
             this.game.reset();
             this.game.hand.resetHand(this.game.getPassingDirection());
         }
@@ -150,14 +148,12 @@ class Gui implements HandObserver {
         if (this.cardsToPass.length() < 3) {
             this.cardsToPass.insert(card);
             console.log("number of cards to pass", this.cardsToPass.length());
-            this.draw();
         }
     }
 
     public removeFromPass(card: Card) {
         console.log("clicked to remove", card.str());
         this.cardsToPass.remove(card);
-        this.draw();
     }
 
     /**
@@ -258,7 +254,6 @@ class Gui implements HandObserver {
      * @param forPlay waiting for the next player to play a card
      */
     private drawWait(seconds: number, allowSkipWithClick: boolean, forPlay: boolean) {
-        this.draw();
         return this.waiter.wait(seconds, allowSkipWithClick, forPlay);
     }
 
@@ -292,12 +287,10 @@ class Gui implements HandObserver {
             this.humanPlayerPassed = true;
             this.game.hand.resetTrick();
         }
-        this.draw();
     }
     receivePassedCards(): void {
         console.log("gui sees received passed cards");
         this.game.hand.resetTrick();
-        this.draw();
     }
     resetTrick(): void {
         if (this.game.hand.getWhoseTurn() !== 0) {
@@ -305,7 +298,6 @@ class Gui implements HandObserver {
         }
         else {
             this.save();
-            this.draw();
         }
     }
     pass(fromPlayer: number, _toPlayer: number, _cards: Card[]) {
@@ -327,7 +319,6 @@ class Gui implements HandObserver {
         else if (this.game.hand.getPassCount() === 3) {
             this.save();
         }
-        this.draw();
     }
     seeCardPlayed(_card: Card, _byPlayer: Number, _showingOnlyHearts: boolean) {
         console.log("see card played in GUI");
@@ -372,7 +363,6 @@ class Gui implements HandObserver {
         }
         else {  // human turn
             this.save();
-            this.draw();
         }
     }
 }
