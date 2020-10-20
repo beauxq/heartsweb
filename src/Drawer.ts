@@ -366,7 +366,7 @@ class Drawer {
         const lineCount = winners.length + 1;
         const lineSize = this.fontSize + 2;
 
-        // TODO: get names from somewhere if they are customizeable
+        // TODO: get names from somewhere if they are customizable
         const winnerNames = ["You", "Left", "North", "3 o'Clock"];
 
         const boxHeight = (lineCount + 2) * lineSize;
@@ -377,7 +377,7 @@ class Drawer {
 
         this.context.fillRect(boxX, boxY, boxWidth, boxHeight);
 
-        // TODO: optimization: figure out why putting these (font and baseline) in Drawer contructor doesn't work
+        // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
         this.context.font = "" + this.fontSize + "px Arial";
         this.context.textBaseline = "top";
         this.context.fillStyle = "black";
