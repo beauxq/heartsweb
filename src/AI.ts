@@ -43,7 +43,7 @@ class AI implements HandObserver {
                     const cards = [hand.at(i) as Card, hand.at(j) as Card, hand.at(k) as Card];
                     cardsForEachCombination[scoreIndex] = cards;
 
-                    const loopCount = Math.floor(AI.LEVEL / (286 * 4)) + 1;
+                    const loopCount = Math.floor(AI.LEVEL / (286 * 2)) + 1;
 
                     for (let simNum = loopCount; simNum > 0; --simNum) {
                         const sim = new GameHand(this.gameHand);
@@ -553,7 +553,12 @@ class AI implements HandObserver {
         // TODO: I don't know a good way to tune these numbers
         // if shooting the moon is possible, higher probability of playing a random card
         /** out of 10 */
-        const randomIfLessThan = this.gameHand.getShootMoonPossible() ? 5 : 2;
+        const myCardCount = this.gameHand.getHand(this.gameHand.getWhoseTurn()).length()
+        const randomIfLessThan = this.gameHand.getShootMoonPossible()
+            // first trick play random, otherwise get gradually more random over the hand
+            ? ((myCardCount > 12) ? 10 : (myCardCount * -0.8 + 11.5))
+            // if shoot the moon not possible, low probability of random
+            : 2;
 
         if (Math.random() * 10 < randomIfLessThan) {
             const vc = this.gameHand.findValidChoices();
