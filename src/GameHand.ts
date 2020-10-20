@@ -54,6 +54,7 @@ class GameHand {
             this.scores = gameHand.scores.map(x => x);
             this.passingDirection = gameHand.passingDirection;
             for (let player = 0; player < 4; ++player) {
+                this.passedCardsToPlayer[player].length = 0;
                 gameHand.passedCardsToPlayer[player].forEach((card) => {
                     this.passedCardsToPlayer[player].push(new Card(card));
                 });
