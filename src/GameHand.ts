@@ -149,7 +149,7 @@ class GameHand {
     }
 
     /** to be called with speculated hands in simulation */
-    setHands(hands: CardGroup[]): void {
+    public setHands(hands: CardGroup[]): void {
         this.hands = hands;
     }
 

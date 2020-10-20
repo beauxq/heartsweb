@@ -316,8 +316,8 @@ class AI implements HandObserver {
             // copy constructor
             const ai = gameHand as AI;
             this.unknownCards = new CardGroup(ai.unknownCards);
-            this.playerSeenVoidInSuits = ai.playerSeenVoidInSuits;
-            this.cardsIPassed = [];
+            this.playerSeenVoidInSuits = ai.playerSeenVoidInSuits;  // shallow copy, don't think I need deep copy
+            this.cardsIPassed.length = 0;
             ai.cardsIPassed.forEach((card) => {
                 this.cardsIPassed.push(new Card(card));
             });
@@ -430,7 +430,7 @@ class AI implements HandObserver {
                     if (this.gameHand.getPlayedCardCount() < 3) {  // someone else will play after me
                         if (leadCard.suit === Card.SPADES) {  // spades
                             if (validChoices[0].value === 12 &&  // queen
-                                validChoices.length > 1) {  // and I have somethign else
+                                validChoices.length > 1) {  // and I have something else
                                 return validChoices[1];
                             }
                             else {  // not queen or I don't have anything else
