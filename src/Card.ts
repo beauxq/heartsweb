@@ -13,19 +13,23 @@ class Card {
      * @param beginIndex 
      * @param endIndexPlus1 
      */
-    public static find(sortedArray: Card[], card: Card, beginIndex=0, endIndexPlus1=sortedArray.length): number {
-        const looking = Math.floor((beginIndex + endIndexPlus1) / 2);
-        if (looking >= endIndexPlus1) {
-            return -1;
+    public static find(sortedArray: Card[], card: Card): number {
+        let beginIndex = 0;
+        let endIndexPlus1 = sortedArray.length;
+        let looking = endIndexPlus1 >> 1;  // middle
+        while (looking < endIndexPlus1) {
+            if (sortedArray[looking].value === card.value) {
+                return looking;
+            }
+            if (sortedArray[looking].value > card.value) {
+                endIndexPlus1 = looking;
+            }
+            else {
+                beginIndex = looking + 1;
+            }
+            looking = (beginIndex + endIndexPlus1) >> 1;  // new middle
         }
-        if (sortedArray[looking].value === card.value) {
-            return looking;
-        }
-        if (sortedArray[looking].value > card.value) {
-            return Card.find(sortedArray, card, beginIndex, looking);
-        }
-        // else looking < card
-        return Card.find(sortedArray, card, looking + 1, endIndexPlus1);
+        return -1;
     }
 
     public value: number;
