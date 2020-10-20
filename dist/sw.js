@@ -39,6 +39,14 @@ self.addEventListener('fetch', event => {
             if (cachedResponse) {
                 // Return the cached response if present
                 console.log(`Cached response ${cachedResponse}`)
+
+                // I'll use that cached response, but also update the cache with the network
+                fetch(event.request).then((netResponse) => {
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, netResponse.clone());
+                    });
+                });
+
                 return cachedResponse
             }
             // else no cache
