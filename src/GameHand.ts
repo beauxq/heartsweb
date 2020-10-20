@@ -314,6 +314,10 @@ class GameHand {
      * returns who shot the moon, -1 if no one
      */
     public endHand() {
+        // need the played cards to go away so gui doesn't try to draw them
+        this.playedCards = [nullCard, nullCard, nullCard, nullCard];
+        this.playedCardCount = 0;
+        
         for (let winPlayer = 0; winPlayer < 4; ++winPlayer) {  // check for shoot the moon
             if (this.scores[winPlayer] === 26) {
                 this.scores[winPlayer] = 0;
