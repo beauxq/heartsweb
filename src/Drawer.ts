@@ -142,11 +142,11 @@ class Drawer {
 
     /** is this index the leftmost card in any suit in the hand? */
     private static startsNewSuit(index: number, hand: CardGroup): boolean {
-        if (index >= hand.length()) {
-            return false;
-        }
         if (index === 0) {
             return true;
+        }
+        if (index >= hand.length()) {
+            return false;
         }
         return ((hand.at(index - 1) as Card).suit !== (hand.at(index) as Card).suit);
     }
@@ -154,7 +154,7 @@ class Drawer {
     /** if drawing the hand on two rows, which index starts the new row? */
     private static getRowBreak(hand: CardGroup): number {
         const handLength = hand.length();
-        let checkingIndex = Math.floor(handLength / 2);
+        let checkingIndex = handLength >> 1;  // middle
         if (Drawer.startsNewSuit(checkingIndex, hand)){
             return checkingIndex;
         }
@@ -163,7 +163,8 @@ class Drawer {
             let direction = (hand.length(0) + hand.length(1) > checkingIndex) ? 1 : -1;
             checkingIndex += direction;
             // don't put more than 7 on a row
-            while (checkingIndex > handLength - 8 && checkingIndex < 8) {
+            const handLengthM8 = handLength - 8;
+            while (checkingIndex > handLengthM8 && checkingIndex < 8) {
                 if (Drawer.startsNewSuit(checkingIndex, hand)){
                     return checkingIndex;
                 }
@@ -171,15 +172,15 @@ class Drawer {
             }
             // check the other direction
             direction = 0 - direction;
-            checkingIndex = Math.floor(handLength / 2) + direction;
-            while (checkingIndex > handLength - 8 && checkingIndex < 8) {
+            checkingIndex = (handLength >> 1) + direction;
+            while (checkingIndex > handLengthM8 && checkingIndex < 8) {
                 if (Drawer.startsNewSuit(checkingIndex, hand)){
                     return checkingIndex;
                 }
                 checkingIndex += direction;
             }
             // couldn't find a good break between suits, so break in the middle of a suit
-            return Math.floor(handLength / 2);
+            return handLength >> 1;
         }
 
     }
@@ -232,7 +233,7 @@ class Drawer {
                             (cardSpaceWidth * indexInRow);  // plus the width of the cards we've already drawn in this row
                     this.drawCard(cardAndIndex.card, x, rowY);
                     this.gui.clickables.push(new Clickable(x, rowY, this.cardWidth, this.cardHeight,
-                                                       () => { cardClick(cardAndIndex.card); }));
+                                                           () => { cardClick(cardAndIndex.card); }));
                 }
             });
             rowY += this.cardHeight + Drawer.verticalPadding;
