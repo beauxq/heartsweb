@@ -11,6 +11,7 @@ interface TrickRecord {
 
 /**
  * each hand, call these in this order:
+ * ```
  * resetHand();
  * dealHands();
  * pass(fromPlayer, toPlayer, passedCards);
@@ -19,6 +20,7 @@ interface TrickRecord {
  * playCard(card);  // TODO: return hearts broken (for UI)
  * endTrick();  // TODO: returns who took the trick? (for UI)
  * endHand();  // returns who shot the moon
+ * ```
  */
 class GameHand {
     private hands: CardGroup[] = [new CardGroup(), new CardGroup(), new CardGroup(), new CardGroup()];
@@ -42,7 +44,9 @@ class GameHand {
 
     private observerList: HandObserver[] = [];
 
+    /** construct new GameHand */
     constructor();
+    /** copy constructor */
     constructor(gameHand: GameHand);
     constructor(gameHand?: GameHand) {
         if (gameHand) {
@@ -149,7 +153,7 @@ class GameHand {
         this.passCount = 4;
     }
 
-    /** to be called with speculated hands in simulation */
+    /** to be called with speculated hands in AI simulation */
     public setHands(hands: CardGroup[]): void {
         this.hands = hands;
     }
@@ -339,7 +343,7 @@ class GameHand {
 
 
     // rules of the game
-    public findValidChoices(): Card[] {
+    public findValidChoices(): readonly Card[] {
         const hand = this.hands[this.whoseTurn];
         if (hand.length() === 13) {  // first trick
             if (this.playedCardCount === 0) {  // first player
@@ -347,7 +351,7 @@ class GameHand {
             }
             // not first player
             if (hand.length(Card.CLUBS)) {
-                return hand.getSuit(Card.CLUBS).slice();
+                return hand.getSuit(Card.CLUBS);
             }
             else {  // no clubs
                 const validChoices: Card[] = [];
@@ -372,7 +376,7 @@ class GameHand {
                 if (hand.length(Card.HEARTS) === hand.length()) {  // only hearts in hand
                     return hand.slice();
                 }
-                // hearts in hand, play anything not hearts
+                // non-hearts in hand, play anything not hearts
                 const validChoices: Card[] = [];
                 hand.forEach((card) => {
                     if (card.suit !== Card.HEARTS) {

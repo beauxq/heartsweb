@@ -65,16 +65,16 @@ class CardAnimation {
 
 class Drawer {
     // coordinates from image file
-    static suitAssetYs: number[] = [0, 528, 352, 176];
-    static assetHeight: number = 156;
-    static valueXMult: number = 131.5834;
-    static assetWidth: number = 112;
+    static readonly suitAssetYs: number[] = [0, 528, 352, 176];
+    static readonly assetHeight: number = 156;
+    static readonly valueXMult: number = 131.5834;
+    static readonly assetWidth: number = 112;
 
-    static verticalPadding = 5;
-    static spaceAboveHand = 20;
+    static readonly verticalPadding = 5;
+    static readonly spaceAboveHand = 20;
     
-    private context: CanvasRenderingContext2D;
-    private assets: HTMLImageElement;
+    private readonly context: CanvasRenderingContext2D;
+    private readonly assets: HTMLImageElement;
 
     private cardWidth: number = 42;
     private cardHeight: number = 58.5;
@@ -110,6 +110,7 @@ class Drawer {
         console.log("card width set to", this.cardWidth);
     }
 
+    /** locations for animations */
     public setAiCards() {
         for (let player = 1; player < 4; ++player) {
             const [x, y] = Drawer.playerPosition(player);
@@ -139,6 +140,7 @@ class Drawer {
         anim.update();
     }
 
+    /** is this index the leftmost card in any suit in the hand? */
     private static startsNewSuit(index: number, hand: CardGroup): boolean {
         if (index >= hand.length()) {
             return false;
@@ -149,6 +151,7 @@ class Drawer {
         return ((hand.at(index - 1) as Card).suit !== (hand.at(index) as Card).suit);
     }
 
+    /** if drawing the hand on two rows, which index starts the new row? */
     private static getRowBreak(hand: CardGroup): number {
         const handLength = hand.length();
         let checkingIndex = Math.floor(handLength / 2);

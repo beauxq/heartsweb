@@ -1,9 +1,9 @@
 class Card {
-    public static CLUBS = 0;
-    public static DIAMONDS = 1;
-    public static SPADES = 2;
-    public static HEARTS = 3;
-    public static SUIT_COUNT = 4;
+    public static readonly CLUBS = 0;
+    public static readonly DIAMONDS = 1;
+    public static readonly SPADES = 2;
+    public static readonly HEARTS = 3;
+    public static readonly SUIT_COUNT = 4;
 
     /**
      * binary search a sorted Card array for a card,
@@ -32,10 +32,12 @@ class Card {
         return -1;
     }
 
-    public value: number;
-    public suit: number;
+    public readonly value: number;
+    public readonly suit: number;
 
+    /** copy constructor */
     constructor(card: Card);
+    /** construct a card from value and suit */
     constructor(value: number, suit: number);
     constructor(value: number|Card, suit?: number) {
         if (value.hasOwnProperty("suit")) {

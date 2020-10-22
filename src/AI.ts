@@ -5,7 +5,7 @@ import Card from "./Card";
 
 class AI implements HandObserver {
     /** number of tricks to simulate */
-    static LEVEL: number = 10000;
+    private static readonly LEVEL: number = 10000;
 
     private unknownCards: CardGroup = new CardGroup();
     /** example: 
@@ -17,7 +17,7 @@ class AI implements HandObserver {
     private cardsIPassed: Card[] = [];
     private gameHand: GameHand;
     /** player index */
-    private whoAmI: number;
+    private readonly whoAmI: number;
 
     /** to be called in worker where observerList has been removed */
     public observeSelf() {
@@ -309,7 +309,9 @@ class AI implements HandObserver {
         return speculatedHands;
     }
 
+    /** construct an AI */
     constructor(gameHand: GameHand, whoAmI: number);
+    /** copy constructor */
     constructor(ai: AI);
     constructor(gameHand: GameHand|AI, whoAmI?: number) {
         if (gameHand.hasOwnProperty("whoAmI")) {
@@ -543,6 +545,7 @@ class AI implements HandObserver {
                 if (validChoices[randomIndex].value > 11 && validChoices[randomIndex].suit === Card.SPADES) {  // high spade
                     // swap high spade into last spot
                     // I stopped here and decided to use filter instead
+                    // TODO: can I get better performance if I don't use filter?
                 }
             }
         }
@@ -552,8 +555,8 @@ class AI implements HandObserver {
     private simPlayCard(): Card {
         // TODO: I don't know a good way to tune these numbers
         // if shooting the moon is possible, higher probability of playing a random card
+        const myCardCount = this.gameHand.getHand(this.gameHand.getWhoseTurn()).length();
         /** out of 10 */
-        const myCardCount = this.gameHand.getHand(this.gameHand.getWhoseTurn()).length()
         const randomIfLessThan = this.gameHand.getShootMoonPossible()
             // first trick play random, otherwise get gradually more random over the hand
             ? ((myCardCount > 12) ? 10 : (myCardCount * -0.8 + 11.5))

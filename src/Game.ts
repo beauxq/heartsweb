@@ -1,14 +1,16 @@
 import GameHand from "./GameHand";
 
 class Game {
-    static passingDirections: number[] = [1, 3, 2, 0];  // left, right, across, keep
+    static readonly passingDirections: number[] = [1, 3, 2, 0];  // left, right, across, keep
 
     public hand: GameHand = new GameHand();
     public scores: number[] = [0, 0, 0, 0];
     public winners: number[] = [];  // empty if game is not finished
     private passingIndex: number = 0;
 
+    /** construct new game */
     public constructor();
+    /** copy constructor */
     public constructor(game: Game);
     public constructor(game?: Game|undefined) {
         if (game) {

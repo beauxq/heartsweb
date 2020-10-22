@@ -1,9 +1,9 @@
 class Clickable {
-    public x: number = 0;
-    public y: number = 0;
-    public w: number = 0;
-    public h: number = 0;
-    public onClick: Function = () => {};
+    public readonly x: number;
+    public readonly y: number;
+    public readonly w: number;
+    public readonly h: number;
+    public readonly onClick: Function;
 
     constructor(x: number, y: number, w: number, h: number, onClick: Function) {
         this.x = x;

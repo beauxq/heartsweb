@@ -7,12 +7,18 @@ function shuffleArray(array: any[]) {
     }
 }
 
+/** Card container
+ * 
+ *  maintains cards in order by suit and then by value
+ */
 class CardGroup {
     private cards: Card[][] = [
         [], [], [], []  // one for each suit
     ];
 
+    /** construct an empty CardGroup */
     constructor();
+    /** copy constructor */
     constructor(cardGroup: CardGroup);
     constructor(cardGroup?: CardGroup) {
         if (cardGroup) {
@@ -27,7 +33,7 @@ class CardGroup {
 
     /**
      * the number of cards in given suit
-     *  - if no suit given, the number of cards in all suits
+     *  - if no suit given, the number of cards in the CardGroup
      * @param suit 
      */
     public length(suit = -1) {
@@ -37,6 +43,9 @@ class CardGroup {
         return this.cards[suit].length;
     }
 
+    /** convert fullIndex, which is the index to the CardGroup,
+     *  to a suit and index within that suit
+     */
     private getSuitAndIndex(fullIndex: number) {
         let suit = 0;
         while (suit < 4 && fullIndex >= this.cards[suit].length) {
@@ -85,6 +94,8 @@ class CardGroup {
         return indexToReturn;
     }
 
+    public remove(index: number): void;
+    public remove(card: Card): void;
     public remove(cardOrIndex: Card|number) {
         let indexInSuitArray: number, arrayToRemoveFrom: Card[];
 
@@ -143,6 +154,9 @@ class CardGroup {
         });
     }
 
+    /** choose a random Card out of the CardGroup,
+     *  remove it, and return it
+     */
     public dealOne(): Card {
         const index = Math.floor(Math.random() * this.length());
         const toReturn = this.at(index);
@@ -151,7 +165,11 @@ class CardGroup {
         return toReturn;
     }
 
-    public pickRandom(n: number) {
+    /** from hand of 13 cards
+     *
+     *  precondition: `length() === 13`
+     */
+    public pickRandom(n: number): Card[] {
         const toReturn: Card[] = [];
         const indexes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         shuffleArray(indexes);
@@ -161,7 +179,9 @@ class CardGroup {
         return toReturn;
     }
 
-    public getSuit(suit: number) {
+    /** returns a reference to an array of the cards in one suit
+     */
+    public getSuit(suit: number): readonly Card[] {
         return this.cards[suit];
     }
 
