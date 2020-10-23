@@ -1,3 +1,9 @@
+/**
+ * nodejs program to play the game in the console
+ * 
+ * (used for early testing - I haven't kept it up to date)
+ */
+
 import readline from "readline-sync";
 import GameHand from "./GameHand";
 import AI from "./AI";
@@ -42,7 +48,7 @@ async function main() {
             let cardToPlay = new Card(0, 0);
             if (gh.getWhoseTurn() === 0) {  // human
                 while (isNaN(answer) || answer < 0 || answer >= validChoices.length) {
-                    const strAnswer = readline.question("pickone? ");
+                    const strAnswer = readline.question("pick one? ");
                     answer = Number.parseInt(strAnswer);
                 }
                 cardToPlay = validChoices[answer];
