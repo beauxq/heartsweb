@@ -114,7 +114,7 @@ class GameHand {
         return this.passCount;
     }
 
-    public getPlayedCards() {
+    public getPlayedCards(): readonly Card[] {
         return this.playedCards;
     }
 

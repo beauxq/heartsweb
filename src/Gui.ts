@@ -16,6 +16,7 @@ function workerFunction() {
 }
 */
 
+/** controller */
 class Gui implements HandObserver {
     private worker: Worker;
 
