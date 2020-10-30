@@ -210,7 +210,7 @@ class AI implements HandObserver {
                     
                     // assert allowSSANF size > 0  // TODO: remove (or set up debugging)
                     if (allowSSANF.length === 0) {
-                        console.log("ERROR: assertion fail, single swap, no place to put swap card");
+                        console.error("ERROR: assertion fail, single swap, no place to put swap card");
                     }
 
                     const receiver = allowSSANF[Math.floor(Math.random() * allowSSANF.length)];
@@ -247,7 +247,7 @@ class AI implements HandObserver {
 
                     // debugging assertions  // TODO: remove
                     if (handsThatAllowSuit[thisCard.suit].filter(x => x).length !== 1) {  // count 'true'
-                        console.log("ERROR: big assertion was wrong, hands that allow this suit != 1");  // !
+                        console.error("ERROR: big assertion was wrong, hands that allow this suit != 1");  // !
                     }
                     // also, number of non full hands was 1
 
@@ -261,7 +261,7 @@ class AI implements HandObserver {
 
                     // another of the debugging assertions  // TODO: remove
                     if (secondSwapPossibilities.length === 0) {
-                        console.log("ERROR: big assertion was wrong, no cards to move from 3rd to 2nd");
+                        console.error("ERROR: big assertion was wrong, no cards to move from 3rd to 2nd");
                     }
 
                     // move one of those cards to the non-full hand
@@ -281,7 +281,7 @@ class AI implements HandObserver {
 
                     // another of the debugging assertions  // TODO: remove
                     if (possibleCards.length === 0) {
-                        console.log("ERROR: big assertion was wrong, no cards to move from 1st to 3rd");
+                        console.error("ERROR: big assertion was wrong, no cards to move from 1st to 3rd");
                     }
 
                     // move one of those cards to the third hand
@@ -425,7 +425,7 @@ class AI implements HandObserver {
                             }
                         }
                     }
-                    console.log("ERROR: should never get here");
+                    console.error("ERROR: should never get here");
                     return validChoices[0];  // just so compiler doesn't complain about not returning a card
                 }
                 else {  // I can't play under

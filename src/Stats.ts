@@ -71,7 +71,7 @@ class Stats {
     public hand(whoMoon: number) {
         ++this.data.handCount;
         if (this.queenWho === -1) {
-            console.log("ERROR: Stats: hand called without queen");
+            console.error("ERROR: Stats: hand called without queen");
         }
         else {
             ++this.data.queenCount[this.queenWho];
