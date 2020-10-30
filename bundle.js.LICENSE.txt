@@ -1,0 +1,63 @@
+/*! CommonJS bailout: this is used directly at 11:23-27 */
+
+/*! CommonJS bailout: this is used directly at 2:17-21 */
+
+/*! CommonJS bailout: this is used directly at 2:23-27 */
+
+/*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! flagged exports */
+
+/*! other exports [not provided] [no usage info] */
+
+/*! runtime requirements: __webpack_exports__ */
+
+/*! runtime requirements: top-level-this-exports, __webpack_exports__, __webpack_require__ */
+
+/*! unknown exports (runtime-defined) */
+
+/*!*********************!*\
+  !*** ./build/AI.js ***!
+  \*********************/
+
+/*!**********************!*\
+  !*** ./build/Gui.js ***!
+  \**********************/
+
+/*!***********************!*\
+  !*** ./build/Card.js ***!
+  \***********************/
+
+/*!***********************!*\
+  !*** ./build/Game.js ***!
+  \***********************/
+
+/*!************************!*\
+  !*** ./build/Stats.js ***!
+  \************************/
+
+/*!*************************!*\
+  !*** ./build/Drawer.js ***!
+  \*************************/
+
+/*!*************************!*\
+  !*** ./build/Waiter.js ***!
+  \*************************/
+
+/*!*************************!*\
+  !*** ./build/hearts.js ***!
+  \*************************/
+
+/*!***************************!*\
+  !*** ./build/GameHand.js ***!
+  \***************************/
+
+/*!****************************!*\
+  !*** ./build/CardGroup.js ***!
+  \****************************/
+
+/*!****************************!*\
+  !*** ./build/Clickable.js ***!
+  \****************************/
