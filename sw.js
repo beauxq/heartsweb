@@ -1,4 +1,4 @@
-const CACHE_NAME = "HeartsV0.1"
+const CACHE_NAME = "HeartsV0.1";
 
 this.addEventListener('install', async function() {
     const cache = await caches.open(CACHE_NAME);
@@ -9,17 +9,17 @@ this.addEventListener('install', async function() {
         '/workerbundle.js',
         '/bundle.js',
         '/cards.png'
-    ])
+    ]);
 });
 
 self.addEventListener('fetch', event => {
     async function getCustomResponsePromise() {
-        console.log(`URL ${event.request.url}`, `location origin ${location}`)
+        console.log(`fetch url ${event.request.url}`, ` location origin ${location}`);
 
         try {
-            const cachedResponse = await caches.match(event.request)
+            const cachedResponse = await caches.match(event.request);
             if (cachedResponse) {
-                console.log(`Cached response ${cachedResponse}`)
+                console.log(`cached response ${cachedResponse}`);
 
                 // I'll use that cached response, but also update the cache with the network
                 fetch(event.request).then((netResponse) => {
@@ -28,22 +28,22 @@ self.addEventListener('fetch', event => {
                     });
                 });
 
-                return cachedResponse
+                return cachedResponse;
             }
             // else no cache
-            const netResponse = await fetch(event.request)
+            const netResponse = await fetch(event.request);
 
-            console.log(`adding net response to cache`)
-            let cache = await caches.open(CACHE_NAME)
-            cache.put(event.request, netResponse.clone())
+            console.log(`adding net response to cache`);
+            let cache = await caches.open(CACHE_NAME);
+            cache.put(event.request, netResponse.clone());
 
-            return netResponse
+            return netResponse;
         }
         catch (err) {
-            console.error(`Error ${err}`)
-            throw err
+            console.error(`error ${err}`);
+            throw err;
         }
     }
 
-    event.respondWith(getCustomResponsePromise())
+    event.respondWith(getCustomResponsePromise());
 });
