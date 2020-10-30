@@ -211,6 +211,8 @@ class Gui implements HandObserver {
             this.drawer.drawPlayedCards();
             this.drawer.drawPreviousTrick();
         }
+
+        this.drawer.drawMenu();
     }
 
     public click(e: MouseEvent) {

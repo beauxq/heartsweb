@@ -2,6 +2,8 @@ import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
+import { menuColor } from "./drawResources";
+import Menu from "./Menu";
 
 const framesPerCardAnimation = 10;
 
@@ -83,6 +85,8 @@ class Drawer {
 
     private gui: Gui;
 
+    private menu: Menu;
+
     /** key is Card.hash() */
     private cardAnimations: Map<number, CardAnimation>;
 
@@ -90,6 +94,7 @@ class Drawer {
         this.context = context;
         this.assets = assets;
         this.gui = gui;
+        this.menu = new Menu(context);
 
         this.cardAnimations = new Map();
         for (let value = 2; value < 15; ++value) {
@@ -366,7 +371,7 @@ class Drawer {
     }
 
     public drawEnd(winners: number[]) {
-        this.context.fillStyle = "lightgray";
+        this.context.fillStyle = menuColor;
         const lineCount = winners.length + 1;
         const lineSize = this.fontSize + 2;
 
@@ -395,6 +400,10 @@ class Drawer {
     public background() {
         this.context.fillStyle = "purple";
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+    }
+
+    public drawMenu() {
+        this.menu.draw(this.gui.clickables);  // ref to clickables array to we can put stuff in it
     }
 }
 
