@@ -5,3 +5,4 @@ dist/bundle.js
 dist/workerbundle.js
 *.xcf
 .vscode
+dist/*.LICENSE.txt
