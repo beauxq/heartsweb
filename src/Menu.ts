@@ -123,14 +123,14 @@ class Menu {
         this.context.globalAlpha = 1;
 
 
-        if (this.sizeX === this.fullX) {
+        if (this.sizeX === 0) {
+            // done closing
+            clickables.push(this.rc.openMenuButton);
+        }
+        else if (this.sizeX === this.fullX) {
             // done opening
             clickables.push(this.rc.menuOpenBlank);
             clickables.push(this.rc.closeMenuButton);
-        }
-        else if (this.sizeX === 0) {
-            // done closing
-            clickables.push(this.rc.openMenuButton);
         }
     }
 }
