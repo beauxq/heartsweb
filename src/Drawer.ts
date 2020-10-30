@@ -2,7 +2,7 @@ import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
-import { menuColor } from "./drawResources";
+import { menuColor, menuTextColor } from "./drawResources";
 import Menu from "./Menu";
 
 const framesPerCardAnimation = 10;
@@ -113,6 +113,8 @@ class Drawer {
         this.cardWidth = zoom * this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
         this.cardHeight = this.cardWidth * Drawer.assetHeight / Drawer.assetWidth;
         console.log("card width set to", this.cardWidth);
+
+        this.menu.resize();
     }
 
     /** locations for animations */
@@ -389,7 +391,7 @@ class Drawer {
         // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
         this.context.font = "" + this.fontSize + "px Arial";
         this.context.textBaseline = "top";
-        this.context.fillStyle = "black";
+        this.context.fillStyle = menuTextColor;
 
         this.context.fillText("winner" + ((winners.length > 1) ? "s:" : ":"), boxX + lineSize, boxY + lineSize);
         winners.forEach((player, index) => {
