@@ -1,6 +1,6 @@
 node_modules
 build
-Co.png
+*.png
 dist/bundle.js
 dist/workerbundle.js
 *.xcf
