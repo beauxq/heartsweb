@@ -4,11 +4,10 @@ this.addEventListener('install', async function() {
     const cache = await caches.open(CACHE_NAME);
     cache.addAll([
         '',
-        '/',
-        '/index.html',
-        '/workerbundle.js',
-        '/bundle.js',
-        '/cards.png'
+        'index.html',
+        'workerbundle.js',
+        'bundle.js',
+        'cards.png'
     ]);
 });
 
