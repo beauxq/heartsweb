@@ -6,7 +6,13 @@
 
 /*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
 
+/*! export buttonColor [provided] [no usage info] [missing usage info prevents renaming] */
+
 /*! export default [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export menuColor [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export menuTextColor [provided] [no usage info] [missing usage info prevents renaming] */
 
 /*! flagged exports */
 
@@ -32,6 +38,10 @@
 
 /*!***********************!*\
   !*** ./build/Game.js ***!
+  \***********************/
+
+/*!***********************!*\
+  !*** ./build/Menu.js ***!
   \***********************/
 
 /*!************************!*\
@@ -61,3 +71,7 @@
 /*!****************************!*\
   !*** ./build/Clickable.js ***!
   \****************************/
+
+/*!********************************!*\
+  !*** ./build/drawResources.js ***!
+  \********************************/
