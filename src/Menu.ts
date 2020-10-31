@@ -1,5 +1,5 @@
 import Clickable from "./Clickable";
-import { menuColor, menuTextColor } from "./drawResources";
+import { buttonColor, menuColor, menuTextColor } from "./drawResources";
 
 interface regularClickables {
     /** clicking anywhere closes the menu */
@@ -10,6 +10,7 @@ interface regularClickables {
     openMenuButton: Clickable;
     /** button to close menu */
     closeMenuButton: Clickable;
+    donButton: Clickable;
 }
 
 class Menu {
@@ -43,12 +44,14 @@ class Menu {
         const x = width - padding - radius;
         const y = padding + radius;
         const quarter = Math.PI / 2;
+        const donHeight = 40;
+        const donWidth = 70;
 
-        return { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, quarter };
+        return { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, quarter, donHeight, donWidth };
     }
 
     public resize() {
-        const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, /* quarter */ } = this.menuDrawCalculations();
+        const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, /* quarter, */ donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
             fullscreenCloseMenu: new Clickable(0, 0, width, height, () => {
                 console.log("clicked outside menu to close menu");
@@ -63,6 +66,9 @@ class Menu {
             closeMenuButton: new Clickable(x - buttonSizeD2, y - buttonSizeD2, buttonSize, buttonSize, () => {
                 console.log("clicked close button to close menu");
                 this.opened = false;
+            }),
+            donButton: new Clickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
+                window.open("https://www.patreon.com/user?u=44765751", "_blank");
             })
         };
 
@@ -70,7 +76,7 @@ class Menu {
     }
 
     public draw(clickables: Clickable[]) {
-        const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, quarter } = this.menuDrawCalculations();
+        const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, quarter, donHeight, donWidth } = this.menuDrawCalculations();
         // animation update
         if (this.opened) {
             this.sizeX = Math.min(this.fullX, this.sizeX + this.fullX / 8);
@@ -127,10 +133,24 @@ class Menu {
             clickables.push(this.rc.openMenuButton);
         }
         else {
+            // don button
+            const buttonHeight = proportion * donHeight;
+            const buttonWidth = proportion * donWidth;
+            this.context.fillStyle = buttonColor;
+            this.context.fillRect(x - buttonWidth, y + this.sizeY - buttonHeight, buttonWidth, buttonHeight);
+            this.context.fillStyle = menuTextColor;
+            const donSize = Math.trunc(18 * proportion);
+            if (donSize > 5) {
+                this.context.font = "" + Math.trunc(18 * proportion) + "px Arial";
+                this.context.textBaseline = "top";
+                this.context.fillText("Donate", x - buttonWidth * 0.9, y + this.sizeY - buttonHeight * 0.72);
+            }
+        
             if (this.sizeX === this.fullX) {
                 // done opening
                 clickables.push(this.rc.menuOpenBlank);
                 clickables.push(this.rc.closeMenuButton);
+                clickables.push(this.rc.donButton);
             }
         }
     }
