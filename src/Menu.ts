@@ -66,7 +66,7 @@ class Menu {
             })
         };
 
-        // TODO: probably change this.sizeX and this.sizeY here
+        // TODO: probably change this.fullX and this.fullY here
     }
 
     public draw(clickables: Clickable[]) {
@@ -122,15 +122,16 @@ class Menu {
         this.context.stroke();
         this.context.globalAlpha = 1;
 
-
         if (this.sizeX === 0) {
             // done closing
             clickables.push(this.rc.openMenuButton);
         }
-        else if (this.sizeX === this.fullX) {
-            // done opening
-            clickables.push(this.rc.menuOpenBlank);
-            clickables.push(this.rc.closeMenuButton);
+        else {
+            if (this.sizeX === this.fullX) {
+                // done opening
+                clickables.push(this.rc.menuOpenBlank);
+                clickables.push(this.rc.closeMenuButton);
+            }
         }
     }
 }

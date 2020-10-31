@@ -2,7 +2,7 @@ import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
-import { menuColor, menuTextColor } from "./drawResources";
+import { buttonColor, menuColor, menuTextColor } from "./drawResources";
 import Menu from "./Menu";
 
 const framesPerCardAnimation = 10;
@@ -335,7 +335,7 @@ class Drawer {
      */
     private drawArrow(x: number, y: number, size: number, direction: number, opaque: boolean) {
         this.context.globalAlpha = opaque ? 1 : 0.5;
-        this.context.fillStyle = "orange";
+        this.context.fillStyle = buttonColor;
 
         this.context.translate(x + size/2, y + size/2);
         this.context.rotate(direction * Math.PI / 2);
