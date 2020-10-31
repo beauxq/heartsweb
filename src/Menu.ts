@@ -22,6 +22,15 @@ class Menu {
     private readonly fullX: number;
     private readonly fullY: number;
 
+    /** to randomize which line gets which animation */
+    private menuButtonLines: number[] = [0, 1, 2];
+    private randomizeMenuButtonLines() {
+        let randomI = Math.trunc(Math.random() * 3);
+        [this.menuButtonLines[0], this.menuButtonLines[randomI]] = [this.menuButtonLines[randomI], this.menuButtonLines[0]];
+        randomI = Math.trunc(Math.random() * 2) + 1;
+        [this.menuButtonLines[1], this.menuButtonLines[randomI]] = [this.menuButtonLines[randomI], this.menuButtonLines[1]];
+    }
+
     private rc!: regularClickables;
 
     constructor(private context: CanvasRenderingContext2D) {
@@ -56,16 +65,25 @@ class Menu {
             fullscreenCloseMenu: new Clickable(0, 0, width, height, () => {
                 console.log("clicked outside menu to close menu");
                 this.opened = false;
+                if (this.sizeX === this.fullX) {  // open
+                    this.randomizeMenuButtonLines();
+                }
             }),
             menuOpenBlank: new Clickable(x - this.fullX - buttonSizeD2, y - buttonSizeD2, this.fullX + buttonSize, this.fullY + buttonSize, () => {
                 // nothing - just cancelling the full screen clickable
             }),
             openMenuButton: new Clickable(x - buttonSize / 2, y - buttonSize / 2, buttonSize, buttonSize, () => {
                 this.opened = true;
+                if (this.sizeX === 0) {  // closed
+                    this.randomizeMenuButtonLines();
+                }
             }),
             closeMenuButton: new Clickable(x - buttonSizeD2, y - buttonSizeD2, buttonSize, buttonSize, () => {
                 console.log("clicked close button to close menu");
                 this.opened = false;
+                if (this.sizeX === this.fullX) {  // open
+                    this.randomizeMenuButtonLines();
+                }
             }),
             donButton: new Clickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
                 window.open("https://www.patreon.com/user?u=44765751", "_blank");
@@ -110,21 +128,34 @@ class Menu {
         const rightX = x + buttonSizeD2 - padding * 2;
         const topY = y - buttonSizeD2 + padding * 2;
         const botY = y + buttonSizeD2 - padding * 2;
-        const diff = botY - topY;
         const proportion = this.sizeY / this.fullY;
+        const linesFrom = [topY, botY, y];
         this.context.strokeStyle = menuTextColor;
+        // to /
+        let begin = linesFrom[this.menuButtonLines[0]];
+        let endL = botY;
+        let endR = topY;
+        let diffL = endL - begin;
+        let diffR = endR - begin;
         this.context.beginPath();
-        this.context.moveTo(rightX, topY);
-        this.context.lineTo(leftX, topY + proportion * diff);
+        this.context.moveTo(rightX, begin + proportion * diffR);
+        this.context.lineTo(leftX, begin + proportion * diffL);
         this.context.stroke();
+        // to \
+        begin = linesFrom[this.menuButtonLines[1]];
+        endL = topY;
+        endR = botY;
+        diffL = endL - begin;
+        diffR = endR - begin;
         this.context.beginPath();
-        this.context.moveTo(rightX, botY);
-        this.context.lineTo(leftX, botY - proportion * diff);
+        this.context.moveTo(rightX, begin + proportion * diffR);
+        this.context.lineTo(leftX, begin + proportion * diffL);
         this.context.stroke();
+        // fade
         this.context.globalAlpha = 1 - proportion;
         this.context.beginPath();
-        this.context.moveTo(rightX, y);
-        this.context.lineTo(leftX, y);
+        this.context.moveTo(rightX, linesFrom[this.menuButtonLines[2]]);
+        this.context.lineTo(leftX, linesFrom[this.menuButtonLines[2]]);
         this.context.stroke();
         this.context.globalAlpha = 1;
 
