@@ -1,5 +1,7 @@
 import Clickable from "./Clickable";
 import { buttonColor, menuColor, menuTextColor } from "./drawResources";
+import { TrickRecord } from "./GameHand";
+import PrevDrawer from "./PrevDrawer";
 
 interface regularClickables {
     /** clicking anywhere closes the menu */
@@ -19,8 +21,8 @@ class Menu {
     // animation state
     private sizeX = 0;
     private sizeY = 0;
-    private readonly fullX: number;
-    private readonly fullY: number;
+    private fullX: number = 128;
+    private fullY: number = 128;
 
     /** to randomize which line gets which animation */
     private menuButtonLines: number[] = [0, 1, 2];
@@ -33,11 +35,12 @@ class Menu {
 
     private rc!: regularClickables;
 
-    constructor(private context: CanvasRenderingContext2D) {
-        this.fullX = 128;
-        this.fullY = 128;
+    private ptd: PrevDrawer;
 
-        this.resize();
+    constructor(private context: CanvasRenderingContext2D) {
+        this.ptd = new PrevDrawer(context);
+
+        this.resize(64);
     }
 
     private menuDrawCalculations() {
@@ -59,7 +62,9 @@ class Menu {
         return { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, quarter, donHeight, donWidth };
     }
 
-    public resize() {
+    public resize(cardWidth: number) {
+        this.fullX = Math.trunc(cardWidth * 2);
+        this.fullY = this.fullX;
         const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, /* quarter, */ donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
             fullscreenCloseMenu: new Clickable(0, 0, width, height, () => {
@@ -90,10 +95,10 @@ class Menu {
             })
         };
 
-        // TODO: probably change this.fullX and this.fullY here
+        this.ptd.resize(this.fullX, this.fullY, x, y);
     }
 
-    public draw(clickables: Clickable[]) {
+    public draw(trickHistory: readonly TrickRecord[], clickables: Clickable[]) {
         const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, quarter, donHeight, donWidth } = this.menuDrawCalculations();
         // animation update
         if (this.opened) {
@@ -108,6 +113,7 @@ class Menu {
 
         // menu area and open button
         this.context.fillStyle = menuColor;
+        this.context.globalAlpha = 0.5;
         this.context.beginPath();
         // top right
         this.context.arc(x, y, radius, quarter, 0, false);
@@ -122,6 +128,7 @@ class Menu {
         this.context.arc(x - this.sizeX, y, radius, Math.PI, quarter * 3, false);
         this.context.lineTo(x, y - radius);
         this.context.fill();
+        this.context.globalAlpha = 1;
 
         // menu button - close button
         const leftX = x - buttonSizeD2 + padding * 2;
@@ -180,6 +187,9 @@ class Menu {
             if (this.sizeX === this.fullX) {
                 // done opening
                 clickables.push(this.rc.menuOpenBlank);
+
+                this.ptd.draw(trickHistory, clickables);
+
                 clickables.push(this.rc.closeMenuButton);
                 clickables.push(this.rc.donButton);
             }

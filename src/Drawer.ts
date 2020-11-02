@@ -2,8 +2,9 @@ import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import Clickable from "./Clickable";
-import { buttonColor, menuColor, menuTextColor } from "./drawResources";
+import { background, buttonColor, menuColor, menuTextColor } from "./drawResources";
 import Menu from "./Menu";
+import CDR from "./CardDrawResources";
 
 const framesPerCardAnimation = 10;
 
@@ -66,17 +67,10 @@ class CardAnimation {
 }
 
 class Drawer {
-    // coordinates from image file
-    static readonly suitAssetYs: number[] = [0, 528, 352, 176];
-    static readonly assetHeight: number = 156;
-    static readonly valueXMult: number = 131.5834;
-    static readonly assetWidth: number = 112;
-
     static readonly verticalPadding = 5;
     static readonly spaceAboveHand = 20;
     
     private readonly context: CanvasRenderingContext2D;
-    private readonly assets: HTMLImageElement;
 
     private cardWidth: number = 42;
     private cardHeight: number = 58.5;
@@ -90,9 +84,8 @@ class Drawer {
     /** key is Card.hash() */
     private cardAnimations: Map<number, CardAnimation>;
 
-    constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement, gui: Gui) {
+    constructor(context: CanvasRenderingContext2D, gui: Gui) {
         this.context = context;
-        this.assets = assets;
         this.gui = gui;
         this.menu = new Menu(context);
 
@@ -111,10 +104,10 @@ class Drawer {
     public resize(zoom: number) {
         this.vertical = this.context.canvas.height > this.context.canvas.width;
         this.cardWidth = zoom * this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
-        this.cardHeight = this.cardWidth * Drawer.assetHeight / Drawer.assetWidth;
+        this.cardHeight = this.cardWidth * CDR.assetHeight / CDR.assetWidth;
         console.log("card width set to", this.cardWidth);
 
-        this.menu.resize();
+        this.menu.resize(this.cardWidth);
     }
 
     /** locations for animations */
@@ -128,8 +121,7 @@ class Drawer {
     }
 
     private drawCard(card: Card, x: number, y: number) {
-        const assetX = (((card.value === 14) ? 1 : card.value) - 1) * Drawer.valueXMult;
-        const assetY = Drawer.suitAssetYs[card.suit];
+        const { assetX, assetY } = CDR.getAssetCoords(card);
 
         const canvas = this.context.canvas;
         const width = canvas.width;
@@ -139,9 +131,9 @@ class Drawer {
         if (! anim) { throw `anim not found with card ${card.str()}`; }
         const [propX, propY] = anim.setDestination(x / width, y / height);
 
-        this.context.drawImage(this.assets,
+        this.context.drawImage(CDR.assets,
                                assetX, assetY,
-                               Drawer.assetWidth, Drawer.assetHeight,
+                               CDR.assetWidth, CDR.assetHeight,
                                propX * width, propY * height,
                                this.cardWidth, this.cardHeight);
         anim.update();
@@ -373,7 +365,6 @@ class Drawer {
     }
 
     public drawEnd(winners: number[]) {
-        this.context.fillStyle = menuColor;
         const lineCount = winners.length + 1;
         const lineSize = this.fontSize + 2;
 
@@ -386,7 +377,10 @@ class Drawer {
         const boxX = (this.context.canvas.width - boxWidth) / 2;
         const boxY = (this.context.canvas.height - boxHeight) / 2;
 
+        this.context.fillStyle = menuColor;
+        this.context.globalAlpha = 0.5;
         this.context.fillRect(boxX, boxY, boxWidth, boxHeight);
+        this.context.globalAlpha = 1;
 
         // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
         this.context.font = `${this.fontSize}px Arial`;
@@ -400,12 +394,12 @@ class Drawer {
     }
 
     public background() {
-        this.context.fillStyle = "purple";
+        this.context.fillStyle = background;
         this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     }
 
     public drawMenu() {
-        this.menu.draw(this.gui.clickables);  // ref to clickables array to we can put stuff in it
+        this.menu.draw(this.gui.game.hand.trickHistory, this.gui.clickables);  // ref to clickables array to we can put stuff in it
     }
 }
 

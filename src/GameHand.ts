@@ -4,7 +4,7 @@ import HandObserver from "./HandObserver";
 
 const nullCard = new Card(0, 0);
 
-interface TrickRecord {
+export interface TrickRecord {
     cards: Card[],
     whoWon: number
 }
@@ -38,7 +38,8 @@ class GameHand {
     private pointsPlayedThisTrick: boolean = false;
 
     /** updates in `endTrick` */
-    private trickHistory: TrickRecord[] = [];
+    private _trickHistory: TrickRecord[] = [];
+    get trickHistory(): readonly TrickRecord[] { return this._trickHistory; }
 
     private shootMoonPossible: boolean = true;
 
@@ -73,7 +74,7 @@ class GameHand {
             this.whoseTurn = gameHand.whoseTurn;
             this.heartsBroken = gameHand.heartsBroken;
             this.pointsPlayedThisTrick = gameHand.pointsPlayedThisTrick;
-            this.trickHistory = gameHand.trickHistory.map((tr) => { return {
+            this._trickHistory = gameHand._trickHistory.map((tr) => { return {
                 cards: tr.cards.map((card) => new Card(card)),
                 whoWon: tr.whoWon
             };});
@@ -127,8 +128,8 @@ class GameHand {
      *  Between `endTrick` and `resetTrick`, this returns the same cards as `getPlayedCards`
      */
     public getPreviousTrick() {
-        const l = this.trickHistory.length;
-        return l ? this.trickHistory[l - 1] : {
+        const l = this._trickHistory.length;
+        return l ? this._trickHistory[l - 1] : {
             cards: [],
             whoWon: 0
         };
@@ -167,7 +168,7 @@ class GameHand {
         }
         this.passCount = 0;
         this.heartsBroken = false;
-        this.trickHistory.length = 0;
+        this._trickHistory.length = 0;
         this.shootMoonPossible = true;
 
         this.observerList.forEach((ob) => { ob.resetHand(); });
@@ -308,7 +309,7 @@ class GameHand {
 
         this.whoseTurn = this.trickLeader;
 
-        this.trickHistory.push({
+        this._trickHistory.push({
             cards: this.playedCards.slice(),
             whoWon: this.trickLeader
         });

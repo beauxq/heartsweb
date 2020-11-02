@@ -1,11 +1,9 @@
 import Gui from "./Gui" ;
 
 var canvas = document.getElementById('c') as HTMLCanvasElement;
-var assets = document.getElementById('a');
 var storage = window.localStorage;
 
 const gui = new Gui(canvas.getContext('2d') as CanvasRenderingContext2D,
-                    assets as HTMLImageElement,
                     storage);
 
 // resize the canvas to fill browser window dynamically

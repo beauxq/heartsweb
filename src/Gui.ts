@@ -65,9 +65,9 @@ class Gui implements HandObserver {
         this.worker.postMessage(cl);
     }
 
-    constructor(context: CanvasRenderingContext2D, assets: HTMLImageElement, storage: Storage) {
+    constructor(context: CanvasRenderingContext2D, storage: Storage) {
         this.storage = storage;
-        this.drawer = new Drawer(context, assets, this);
+        this.drawer = new Drawer(context, this);
         this.stats = new Stats(storage);
 
         // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));

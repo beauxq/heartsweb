@@ -1,0 +1,100 @@
+import Card from "./Card";
+import { TrickRecord } from "./GameHand";
+import CDR from "./CardDrawResources";
+import Clickable from "./Clickable";
+import { buttonColor } from "./drawResources";
+
+/** previous trick drawer */
+class PrevDrawer {
+    private current = -1;
+    private prevLength = 0;  // know when length of trick history changes
+    
+    private menuWidth: number = 128;
+    private menuHeight: number = 128;
+    private menuRightX: number = 295;
+    private menuTopY: number = 25;
+
+    constructor(private context: CanvasRenderingContext2D) {
+
+    }
+
+    public resize(menuWidth: number, menuHeight: number, menuRightX: number, menuTopY: number) {
+        this.menuWidth = menuWidth;
+        this.menuHeight = menuHeight;
+        this.menuRightX = menuRightX;
+        this.menuTopY = menuTopY;
+    }
+
+    private get cardWidth() {
+        return this.menuWidth * 0.33333;
+    }
+
+    private drawCard(card: Card, x: number, y: number) {
+        const { assetX, assetY } = CDR.getAssetCoords(card);
+        const cardWidth = this.cardWidth;
+        const cardHeight = cardWidth / CDR.assetWidth * CDR.assetHeight;
+        this.context.drawImage(CDR.assets,
+                               assetX, assetY,
+                               CDR.assetWidth, CDR.assetHeight,
+                               x, y, 
+                               cardWidth, cardHeight);
+    }
+
+    /** 4 cards and 2 buttons (forward and backward) */
+    draw(trickHistory: readonly TrickRecord[], clickables: Clickable[]) {
+        if (this.prevLength !== trickHistory.length) {
+            this.prevLength = trickHistory.length;
+            this.current = trickHistory.length - 1;
+        }
+        const thisTrick = trickHistory[this.current];
+        if (thisTrick) {
+            const cardWidth = this.cardWidth;
+            const cardHeight = cardWidth / CDR.assetWidth * CDR.assetHeight;
+            this.drawCard(thisTrick.cards[1],
+                          this.menuRightX - this.menuWidth + cardWidth / 2,
+                          this.menuTopY + cardHeight / 4);
+            this.drawCard(thisTrick.cards[2],
+                          this.menuRightX - this.menuWidth / 2 - cardWidth / 2,
+                          this.menuTopY);
+            this.drawCard(thisTrick.cards[0],
+                          this.menuRightX - this.menuWidth / 2 - cardWidth / 2,
+                          this.menuTopY + cardHeight / 2);
+            this.drawCard(thisTrick.cards[3],
+                          this.menuRightX - this.menuWidth / 2,
+                          this.menuTopY + cardHeight / 4);
+            
+        }
+        const midY = this.menuTopY + this.menuHeight / 3;
+        const buttonWidth = 25;
+        if (this.current < trickHistory.length - 1) {
+            // next button
+            const buttonLeftX = this.menuRightX - buttonWidth;
+            this.context.fillStyle = buttonColor;
+            this.context.beginPath();
+            this.context.moveTo(this.menuRightX, midY);
+            this.context.lineTo(buttonLeftX, midY + 20);
+            this.context.lineTo(buttonLeftX, midY - 20);
+            this.context.fill();
+            clickables.push(new Clickable(buttonLeftX, midY - 18, buttonWidth - 2, 36, () => {
+                ++this.current;
+                console.log("next trick button");
+            }));
+        }
+        if (this.current > 0) {
+            // prev button
+            const buttonRightX = this.menuRightX - this.menuWidth + buttonWidth;
+            this.context.fillStyle = buttonColor;
+            this.context.beginPath();
+            this.context.moveTo(buttonRightX - buttonWidth, midY);
+            this.context.lineTo(buttonRightX, midY + 20);
+            this.context.lineTo(buttonRightX, midY - 20);
+            this.context.fill();
+            clickables.push(new Clickable(buttonRightX - (buttonWidth - 2), midY - 18, (buttonWidth - 2), 36, () => {
+                --this.current;
+                console.log("prev trick button");
+            }));
+        }
+    }
+}
+
+export default PrevDrawer;
