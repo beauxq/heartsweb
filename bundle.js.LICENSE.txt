@@ -6,6 +6,8 @@
 
 /*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
 
+/*! export background [provided] [no usage info] [missing usage info prevents renaming] */
+
 /*! export buttonColor [provided] [no usage info] [missing usage info prevents renaming] */
 
 /*! export default [provided] [no usage info] [missing usage info prevents renaming] */
@@ -72,6 +74,14 @@
   !*** ./build/Clickable.js ***!
   \****************************/
 
+/*!*****************************!*\
+  !*** ./build/PrevDrawer.js ***!
+  \*****************************/
+
 /*!********************************!*\
   !*** ./build/drawResources.js ***!
   \********************************/
+
+/*!************************************!*\
+  !*** ./build/CardDrawResources.js ***!
+  \************************************/
