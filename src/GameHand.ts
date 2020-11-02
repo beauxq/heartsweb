@@ -74,10 +74,21 @@ class GameHand {
             this.whoseTurn = gameHand.whoseTurn;
             this.heartsBroken = gameHand.heartsBroken;
             this.pointsPlayedThisTrick = gameHand.pointsPlayedThisTrick;
-            this._trickHistory = gameHand._trickHistory.map((tr) => { return {
-                cards: tr.cards.map((card) => new Card(card)),
-                whoWon: tr.whoWon
-            };});
+            if (gameHand._trickHistory) {
+                this._trickHistory = gameHand._trickHistory.map((tr) => { return {
+                    cards: tr.cards.map((card) => new Card(card)),
+                    whoWon: tr.whoWon
+                };});
+            }
+            else if (gameHand.trickHistory) {  // to be compatible with old saved data - TODO: get rid of this after a while?
+                this._trickHistory = gameHand.trickHistory.map((tr) => { return {
+                    cards: tr.cards.map((card) => new Card(card)),
+                    whoWon: tr.whoWon
+                };});
+            }
+            else {
+                this._trickHistory = [];
+            }
             this.shootMoonPossible = gameHand.shootMoonPossible;
             // don't copy observer list
         }
