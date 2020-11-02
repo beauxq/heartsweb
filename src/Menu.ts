@@ -63,7 +63,7 @@ class Menu {
     }
 
     public resize(cardWidth: number) {
-        this.fullX = Math.trunc(cardWidth * 2);
+        this.fullX = Math.trunc(120 + (cardWidth - 120 + Math.sqrt(Math.pow(cardWidth - 120, 2) + 80)) / 2 + cardWidth);
         this.fullY = this.fullX;
         const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, /* quarter, */ donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
