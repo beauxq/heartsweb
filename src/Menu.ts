@@ -172,7 +172,7 @@ class Menu {
             this.context.fillStyle = menuTextColor;
             const donSize = Math.trunc(18 * proportion);
             if (donSize > 5) {
-                this.context.font = "" + Math.trunc(18 * proportion) + "px Arial";
+                this.context.font = `${Math.trunc(18 * proportion)}px Arial`;
                 this.context.textBaseline = "top";
                 this.context.fillText("Donate", x - buttonWidth * 0.9, y + this.sizeY - buttonHeight * 0.72);
             }

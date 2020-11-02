@@ -97,13 +97,13 @@ class AI implements HandObserver {
         const t1 = performance.now();
 
         // for testing
-        console.log("player " + this.whoAmI + " had:")
+        console.log(`player ${this.whoAmI} had:`)
         hand.forEach((card) => {
             console.log(card.str());
         });
         console.log("and chose to pass:");
         console.log(cardsForEachCombination[bestIndex]);
-        console.log("time: " + (t1-t0));
+        console.log(`time: ${t1 - t0}`);
 
         return cardsForEachCombination[bestIndex];
     }

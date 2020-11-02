@@ -13,7 +13,7 @@ window.addEventListener('resize', resizeCanvas, false);
 canvas.addEventListener('click', click, false);
 
 function resizeCanvas() {
-    console.log("browserZoomLevel: " + window.devicePixelRatio);
+    console.log(`browserZoomLevel: ${window.devicePixelRatio}`);
 
     canvas.width = window.innerWidth;
     // I've looked at a lot of google search results and still can't find a good solution to this problem

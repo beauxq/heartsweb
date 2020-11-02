@@ -104,7 +104,7 @@ class Drawer {
         }
         
         // this doesn't work, don't know why (see to-do notes below)
-        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.font = `${this.fontSize}px Arial`;
         this.context.textBaseline = "top";
     }
 
@@ -136,7 +136,7 @@ class Drawer {
         const height = canvas.height;
 
         const anim = this.cardAnimations.get(card.hash());
-        if (! anim) { throw "anim not found with card " + card.str(); }
+        if (! anim) { throw `anim not found with card ${card.str()}`; }
         const [propX, propY] = anim.setDestination(x / width, y / height);
 
         this.context.drawImage(this.assets,
@@ -248,17 +248,17 @@ class Drawer {
     }
 
     private drawPlayerScore(player: number, x: number, y: number) {
-        this.context.fillText("Game: " + this.gui.game.scores[player], x, y);
-        this.context.fillText("Hand: " + this.gui.game.hand.getScore(player), x, y + this.fontSize);
+        this.context.fillText(`Game: ${this.gui.game.scores[player]}`, x, y);
+        this.context.fillText(`Hand: ${this.gui.game.hand.getScore(player)}`, x, y + this.fontSize);
     }
 
     public drawScores() {
         // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
-        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.font = `${this.fontSize}px Arial`;
         this.context.textBaseline = "top";
         this.context.fillStyle = "#88ff88";
         // player 0
-        this.context.fillText("Game: " + this.gui.game.scores[0] + "  Hand: " + this.gui.game.hand.getScore(0),
+        this.context.fillText(`Game: ${this.gui.game.scores[0]}  Hand: ${this.gui.game.hand.getScore(0)}`,
                               5,
                               this.yForBottomMiddle() + (this.cardHeight + Drawer.verticalPadding));
         // player 1
@@ -311,7 +311,7 @@ class Drawer {
         if (this.gui.game.hand.getPlayedCardCount() !== 4) {
             const tr = this.gui.game.hand.getPreviousTrick();
             const [destX, destY] = Drawer.playerPosition(tr.whoWon);
-            // console.log("prev trick x " + destX + "  y " + destY);
+            // console.log(`prev trick x ${destX}  y ${destY}`);
             for (let card of tr.cards) {
                 this.drawCard(card,
                             destX * this.context.canvas.width,
@@ -389,11 +389,11 @@ class Drawer {
         this.context.fillRect(boxX, boxY, boxWidth, boxHeight);
 
         // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
-        this.context.font = "" + this.fontSize + "px Arial";
+        this.context.font = `${this.fontSize}px Arial`;
         this.context.textBaseline = "top";
         this.context.fillStyle = menuTextColor;
 
-        this.context.fillText("winner" + ((winners.length > 1) ? "s:" : ":"), boxX + lineSize, boxY + lineSize);
+        this.context.fillText(`winner${(winners.length > 1) ? "s:" : ":"}`, boxX + lineSize, boxY + lineSize);
         winners.forEach((player, index) => {
             this.context.fillText(winnerNames[player], boxX + lineSize, boxY + ((index + 2) * lineSize));
         });
