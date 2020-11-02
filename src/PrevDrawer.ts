@@ -3,6 +3,7 @@ import { TrickRecord } from "./GameHand";
 import CDR from "./CardDrawResources";
 import Clickable from "./Clickable";
 import { buttonColor } from "./drawResources";
+import { roundedRect } from "./drawUtil";
 
 /** previous trick drawer */
 class PrevDrawer {
@@ -29,7 +30,13 @@ class PrevDrawer {
         return this.menuWidth * 0.33333;
     }
 
-    private drawCard(card: Card, x: number, y: number) {
+    private darkenCard(x: number, y: number, width: number, height: number) {
+        this.context.fillStyle = "rgba(0, 0, 0, 0.25)";
+        roundedRect(this.context, x, y, width, height, width * 0.0268);
+        this.context.fill();
+    }
+
+    private drawCard(card: Card, x: number, y: number, thisWon: boolean) {
         const { assetX, assetY } = CDR.getAssetCoords(card);
         const cardWidth = this.cardWidth;
         const cardHeight = cardWidth / CDR.assetWidth * CDR.assetHeight;
@@ -38,6 +45,9 @@ class PrevDrawer {
                                CDR.assetWidth, CDR.assetHeight,
                                x, y, 
                                cardWidth, cardHeight);
+        if (! thisWon) {
+            this.darkenCard(x, y, cardWidth, cardHeight);
+        }
     }
 
     /** 4 cards and 2 buttons (forward and backward) */
@@ -52,16 +62,20 @@ class PrevDrawer {
             const cardHeight = cardWidth / CDR.assetWidth * CDR.assetHeight;
             this.drawCard(thisTrick.cards[1],
                           this.menuRightX - this.menuWidth + cardWidth / 2,
-                          this.menuTopY + cardHeight / 4);
+                          this.menuTopY + cardHeight / 4,
+                          thisTrick.whoWon === 1);
             this.drawCard(thisTrick.cards[2],
                           this.menuRightX - this.menuWidth / 2 - cardWidth / 2,
-                          this.menuTopY);
+                          this.menuTopY,
+                          thisTrick.whoWon === 2);
             this.drawCard(thisTrick.cards[0],
                           this.menuRightX - this.menuWidth / 2 - cardWidth / 2,
-                          this.menuTopY + cardHeight / 2);
+                          this.menuTopY + cardHeight / 2,
+                          thisTrick.whoWon === 0);
             this.drawCard(thisTrick.cards[3],
                           this.menuRightX - this.menuWidth / 2,
-                          this.menuTopY + cardHeight / 4);
+                          this.menuTopY + cardHeight / 4,
+                          thisTrick.whoWon === 3);
             
         }
         const midY = this.menuTopY + this.menuHeight / 3;

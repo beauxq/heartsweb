@@ -1,5 +1,6 @@
 import Clickable from "./Clickable";
 import { buttonColor, menuColor, menuTextColor } from "./drawResources";
+import { roundedRect } from "./drawUtil";
 import { TrickRecord } from "./GameHand";
 import PrevDrawer from "./PrevDrawer";
 
@@ -52,20 +53,19 @@ class Menu {
         /** `buttonSize / 2` */
         const buttonSizeD2 = buttonSize / 2;  // because this is used a lot
         const padding = 5;
-        // middle of the rounded corner
+        // middle of the (top right rounded corner) / (circle button)
         const x = width - padding - radius;
         const y = padding + radius;
-        const quarter = Math.PI / 2;
         const donHeight = 40;
         const donWidth = 70;
 
-        return { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, quarter, donHeight, donWidth };
+        return { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, donHeight, donWidth };
     }
 
     public resize(cardWidth: number) {
         this.fullX = Math.trunc(120 + (cardWidth - 120 + Math.sqrt(Math.pow(cardWidth - 120, 2) + 80)) / 2 + cardWidth);
         this.fullY = this.fullX;
-        const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, /* quarter, */ donHeight, donWidth } = this.menuDrawCalculations();
+        const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
             fullscreenCloseMenu: new Clickable(0, 0, width, height, () => {
                 console.log("clicked outside menu to close menu");
@@ -99,7 +99,7 @@ class Menu {
     }
 
     public draw(trickHistory: readonly TrickRecord[], clickables: Clickable[]) {
-        const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, quarter, donHeight, donWidth } = this.menuDrawCalculations();
+        const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, donHeight, donWidth } = this.menuDrawCalculations();
         // animation update
         if (this.opened) {
             this.sizeX = Math.min(this.fullX, this.sizeX + this.fullX / 8);
@@ -114,19 +114,12 @@ class Menu {
         // menu area and open button
         this.context.fillStyle = menuColor;
         this.context.globalAlpha = 0.5;
-        this.context.beginPath();
-        // top right
-        this.context.arc(x, y, radius, quarter, 0, false);
-        this.context.lineTo(x + radius, y + this.sizeY);
-        // bottom right
-        this.context.arc(x, y + this.sizeY, radius, 0, quarter, false);
-        this.context.lineTo(x - this.sizeX, y + this.sizeY + radius);
-        // bottom left
-        this.context.arc(x - this.sizeX, y + this.sizeY, radius, quarter * 3, Math.PI, false);
-        this.context.lineTo(x - this.sizeX - radius, y);
-        // top left
-        this.context.arc(x - this.sizeX, y, radius, Math.PI, quarter * 3, false);
-        this.context.lineTo(x, y - radius);
+        roundedRect(this.context,
+                    x - this.sizeX - radius,
+                    y - radius,
+                    this.sizeX + 2 * radius,
+                    this.sizeY + 2 * radius,
+                    radius);
         this.context.fill();
         this.context.globalAlpha = 1;
 
