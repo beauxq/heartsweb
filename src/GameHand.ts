@@ -32,6 +32,7 @@ class GameHand {
     // trick
     private playedCards: Card[] = [nullCard, nullCard, nullCard, nullCard];
     private playedCardCount: number = 0;
+    /** who played the highest card in the lead suit */
     private trickLeader: number = 0;
     private whoseTurn: number = 0;
     private heartsBroken: boolean = false;
@@ -39,6 +40,7 @@ class GameHand {
 
     /** updates in `endTrick` */
     private _trickHistory: TrickRecord[] = [];
+    /** updates in `endTrick` */
     get trickHistory(): readonly TrickRecord[] { return this._trickHistory; }
 
     private shootMoonPossible: boolean = true;
@@ -146,6 +148,7 @@ class GameHand {
         };
     }
 
+    /** who played the highest card in the lead suit */
     public getTrickLeader() {
         return this.trickLeader;
     }

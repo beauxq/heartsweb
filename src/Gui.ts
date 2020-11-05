@@ -50,6 +50,7 @@ class Gui implements HandObserver {
         return (key === "observerList") ? undefined : value;
     }
 
+    /** send message to worker for choosing cards to pass */
     private workerMessagePassing() {
         const cl = JSON.parse(JSON.stringify(this.ais,
                                              Gui.filterOutObserverList));
@@ -58,6 +59,7 @@ class Gui implements HandObserver {
         this.worker.postMessage(cl);
     }
 
+    /** send message to worker for choosing card to play */
     private workerMessagePlay() {
         console.log("sending play message to worker, turn:", this.game.hand.getWhoseTurn());
         const cl = JSON.parse(JSON.stringify(this.ais[this.game.hand.getWhoseTurn()],
