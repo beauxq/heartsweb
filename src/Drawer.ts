@@ -1,7 +1,7 @@
 import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
-import Clickable from "./Clickable";
+import { RectClickable } from "./Clickable";
 import { background, buttonColor, menuColor, menuTextColor } from "./drawResources";
 import Menu from "./Menu";
 import CDR from "./CardDrawResources";
@@ -231,8 +231,8 @@ class Drawer {
                     const x = xForRowBegin +
                             (cardSpaceWidth * indexInRow);  // plus the width of the cards we've already drawn in this row
                     this.drawCard(cardAndIndex.card, x, rowY);
-                    this.gui.clickables.push(new Clickable(x, rowY, this.cardWidth, this.cardHeight,
-                                                           () => { cardClick(cardAndIndex.card); }));
+                    this.gui.clickables.push(new RectClickable(x, rowY, this.cardWidth, this.cardHeight,
+                                                               () => { cardClick(cardAndIndex.card); }));
                 }
             });
             rowY += this.cardHeight + Drawer.verticalPadding;
@@ -274,8 +274,8 @@ class Drawer {
         let x = this.context.canvas.width / 2 - (1.5 * this.cardWidth + 10);
         this.gui.cardsToPass.forEach((card) => {
             this.drawCard(card, x, rowY);
-            this.gui.clickables.push(new Clickable(x, rowY, this.cardWidth, this.cardHeight,
-                                               () => { this.gui.removeFromPass(card); }));
+            this.gui.clickables.push(new RectClickable(x, rowY, this.cardWidth, this.cardHeight,
+                                                       () => { this.gui.removeFromPass(card); }));
             x += this.cardWidth + 10;
         });
     }
@@ -360,8 +360,8 @@ class Drawer {
              size);
         
         this.drawArrow(x, y, size, this.gui.game.getPassingDirection() + 1, opaque);
-        this.gui.clickables.push(new Clickable(x, y, size, size,
-                                 () => { this.gui.passButtonClick(); }));
+        this.gui.clickables.push(new RectClickable(x, y, size, size,
+                                                   () => { this.gui.passButtonClick(); }));
     }
 
     public drawEnd(winners: number[]) {

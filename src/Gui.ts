@@ -3,7 +3,7 @@ import Card from "./Card";
 import Game from "./Game";
 import AI from "./AI";
 import CardGroup from "./CardGroup";
-import Clickable from "./Clickable";
+import { Clickable } from "./Clickable";
 import Waiter from "./Waiter";
 import Drawer from "./Drawer";
 import Stats from "./Stats";

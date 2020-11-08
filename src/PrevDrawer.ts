@@ -1,7 +1,7 @@
 import Card from "./Card";
 import { TrickRecord } from "./GameHand";
 import CDR from "./CardDrawResources";
-import Clickable from "./Clickable";
+import { Clickable, RectClickable } from "./Clickable";
 import { buttonColor } from "./drawResources";
 import { roundedRect } from "./drawUtil";
 
@@ -80,16 +80,21 @@ class PrevDrawer {
         }
         const midY = this.menuTopY + this.menuHeight / 3;
         const buttonWidth = 25;
+        const buttonHeightD2 = 20;
         if (this.current < trickHistory.length - 1) {
             // next button
             const buttonLeftX = this.menuRightX - buttonWidth;
             this.context.fillStyle = buttonColor;
             this.context.beginPath();
             this.context.moveTo(this.menuRightX, midY);
-            this.context.lineTo(buttonLeftX, midY + 20);
-            this.context.lineTo(buttonLeftX, midY - 20);
+            this.context.lineTo(buttonLeftX, midY + buttonHeightD2);
+            this.context.lineTo(buttonLeftX, midY - buttonHeightD2);
             this.context.fill();
-            clickables.push(new Clickable(buttonLeftX, midY - 18, buttonWidth - 2, 36, () => {
+            clickables.push(new RectClickable(buttonLeftX,
+                                          midY - buttonHeightD2,
+                                          buttonWidth,
+                                          buttonHeightD2 * 2,
+                                          () => {
                 ++this.current;
                 console.log("next trick button");
             }));
@@ -100,10 +105,14 @@ class PrevDrawer {
             this.context.fillStyle = buttonColor;
             this.context.beginPath();
             this.context.moveTo(buttonRightX - buttonWidth, midY);
-            this.context.lineTo(buttonRightX, midY + 20);
-            this.context.lineTo(buttonRightX, midY - 20);
+            this.context.lineTo(buttonRightX, midY + buttonHeightD2);
+            this.context.lineTo(buttonRightX, midY - buttonHeightD2);
             this.context.fill();
-            clickables.push(new Clickable(buttonRightX - (buttonWidth - 2), midY - 18, (buttonWidth - 2), 36, () => {
+            clickables.push(new RectClickable(buttonRightX - buttonWidth,
+                                          midY - buttonHeightD2,
+                                          buttonWidth,
+                                          buttonHeightD2 * 2,
+                                          () => {
                 --this.current;
                 console.log("prev trick button");
             }));

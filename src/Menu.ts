@@ -1,4 +1,4 @@
-import Clickable from "./Clickable";
+import { Clickable, RectClickable, CircleClickable } from "./Clickable";
 import { buttonColor, menuColor, menuTextColor } from "./drawResources";
 import { roundedRect } from "./drawUtil";
 import { TrickRecord } from "./GameHand";
@@ -9,9 +9,7 @@ interface regularClickables {
     fullscreenCloseMenu: Clickable;
     /** does nothing, just cancels the fullscreen close for the menu area */
     menuOpenBlank: Clickable;
-    /** button to open menu */
     openMenuButton: Clickable;
-    /** button to close menu */
     closeMenuButton: Clickable;
     donButton: Clickable;
 }
@@ -36,6 +34,7 @@ class Menu {
 
     private rc!: regularClickables;
 
+    /** previous trick drawer */
     private ptd: PrevDrawer;
 
     constructor(private context: CanvasRenderingContext2D) {
@@ -65,32 +64,32 @@ class Menu {
     public resize(cardWidth: number) {
         this.fullX = Math.trunc(120 + (cardWidth - 120 + Math.sqrt(Math.pow(cardWidth - 120, 2) + 80)) / 2 + cardWidth);
         this.fullY = this.fullX;
-        const { width, height, /* radius, */ buttonSize, buttonSizeD2, /* padding, */ x, y, donHeight, donWidth } = this.menuDrawCalculations();
+        const { width, height, radius, buttonSize, buttonSizeD2, /* padding, */ x, y, donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
-            fullscreenCloseMenu: new Clickable(0, 0, width, height, () => {
+            fullscreenCloseMenu: new RectClickable(0, 0, width, height, () => {
                 console.log("clicked outside menu to close menu");
                 this.opened = false;
                 if (this.sizeX === this.fullX) {  // open
                     this.randomizeMenuButtonLines();
                 }
             }),
-            menuOpenBlank: new Clickable(x - this.fullX - buttonSizeD2, y - buttonSizeD2, this.fullX + buttonSize, this.fullY + buttonSize, () => {
+            menuOpenBlank: new RectClickable(x - this.fullX - buttonSizeD2, y - buttonSizeD2, this.fullX + buttonSize, this.fullY + buttonSize, () => {
                 // nothing - just cancelling the full screen clickable
             }),
-            openMenuButton: new Clickable(x - buttonSize / 2, y - buttonSize / 2, buttonSize, buttonSize, () => {
+            openMenuButton: new CircleClickable(x, y, radius, () => {
                 this.opened = true;
                 if (this.sizeX === 0) {  // closed
                     this.randomizeMenuButtonLines();
                 }
             }),
-            closeMenuButton: new Clickable(x - buttonSizeD2, y - buttonSizeD2, buttonSize, buttonSize, () => {
+            closeMenuButton: new CircleClickable(x, y, radius, () => {
                 console.log("clicked close button to close menu");
                 this.opened = false;
                 if (this.sizeX === this.fullX) {  // open
                     this.randomizeMenuButtonLines();
                 }
             }),
-            donButton: new Clickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
+            donButton: new RectClickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
                 window.open("https://www.patreon.com/user?u=44765751", "_blank");
             })
         };
