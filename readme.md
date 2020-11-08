@@ -6,3 +6,5 @@ https://beauxq.github.io/heartsweb/
 installable
 
 available offline
+
+artificial intelligence opponent
