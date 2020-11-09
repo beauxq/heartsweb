@@ -29,49 +29,77 @@ class StatDrawer extends MenuItemDrawer {
     }
 
     public draw(_clickables: Clickable[]) {
-        this.context.font = "15px Arial";
-        const line = 17;
+        const lineSize = (this.menuHeight - 45) / 15;  // 15 lines, 40 for buttons + 5 padding
+        this.context.font = `${Math.trunc(lineSize - 1)}px Arial`;
         this.context.textBaseline = "top";
         this.context.fillStyle = menuTextColor;
         const leftX = this.menuRightX - this.menuWidth;
 
-        this.draw4columns("", leftX, this.menuTopY + line, names);
+        let line = this.menuTopY + lineSize;
+
+        this.draw4columns("", leftX, line, names);
 
         const indexes = [0, 1, 2, 3];
+    
+        line += lineSize;
         if (this.stats.gameCount) {
             this.context.fillText(`games: ${this.stats.gameCount}`,
-                                leftX,
-                                this.menuTopY + line * 2,
-                                this.menuWidth);
+                                  leftX,
+                                  line,
+                                  this.menuWidth);
 
-            this.draw4columns("avg:", leftX, this.menuTopY + line * 3,
+            line += lineSize;
+            this.draw4columns("avg:", leftX, line,
                               indexes.map((i) => `${(this.stats.scoreTotals[i]
                               / this.stats.gameCount).toFixed(0)}`));
             
-            this.draw4columns("best:", leftX, this.menuTopY + line * 4,
+            line += lineSize;
+            this.draw4columns("best:", leftX, line,
                               indexes.map((i) => `${this.stats.bestScores[i]}`));
-
-            this.draw4columns("worst:", leftX, this.menuTopY + line * 5,
+            
+            line += lineSize;
+            this.draw4columns("worst:", leftX, line,
                               indexes.map((i) => `${this.stats.worstScores[i]}`));
 
-            // TODO: place counts
+            // place counts
+            line += lineSize;
+            this.draw4columns("1st:", leftX, line,
+                              indexes.map((i) => `${(this.stats.placeCounts[0][i] * 100
+                              / this.stats.gameCount).toFixed(0)}%`));
+            line += lineSize;
+            this.draw4columns("2nd:", leftX, line,
+                              indexes.map((i) => `${(this.stats.placeCounts[1][i] * 100
+                              / this.stats.gameCount).toFixed(0)}%`));
+            line += lineSize;
+            this.draw4columns("3rd:", leftX, line,
+                              indexes.map((i) => `${(this.stats.placeCounts[2][i] * 100
+                              / this.stats.gameCount).toFixed(0)}%`));
+            line += lineSize;
+            this.draw4columns("4th:", leftX, line,
+                              indexes.map((i) => `${(this.stats.placeCounts[3][i] * 100
+                              / this.stats.gameCount).toFixed(0)}%`));
         }
 
+        line += lineSize;
         if (this.stats.handCount) {
+            line += lineSize;
             this.context.fillText(`hands: ${this.stats.handCount}`,
-                                leftX,
-                                this.menuTopY + line * 7,
-                                this.menuWidth);
-            
-            this.draw4columns("avg:", leftX, this.menuTopY + line * 8,
+                                  leftX,
+                                  line,
+                                  this.menuWidth);
+                                
+            line += lineSize;
+            this.draw4columns("avg:", leftX, line,
                               indexes.map((i) => `${(this.stats.scoreTotals[i]
-                              / this.stats.handCount).toFixed(0)}`));
+                              / this.stats.handCount).toFixed(1)}`));
 
-            this.draw4columns("queen:", leftX, this.menuTopY + line * 9,
+            line += lineSize;
+            this.draw4columns("queen:", leftX, line,
                               indexes.map((i) => `${(this.stats.queenCount[i] * 100
                               / this.stats.handCount).toFixed(0)}%`));
 
-            this.draw4columns("moon:", leftX, this.menuTopY + line * 10,
+            line += lineSize;
+            this.draw4columns("moon:", leftX, line,
                               indexes.map((i) => `${(this.stats.moonCount[i] * 100
                               / this.stats.handCount).toFixed(0)}%`));
         }
