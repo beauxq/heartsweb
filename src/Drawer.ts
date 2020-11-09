@@ -2,9 +2,10 @@ import Card from "./Card";
 import Gui from "./Gui";
 import CardGroup from "./CardGroup";
 import { RectClickable } from "./Clickable";
-import { background, buttonColor, menuColor, menuTextColor } from "./drawResources";
+import { background, buttonColor, menuAlpha, menuColor, menuTextColor, scoreTextColor } from "./drawResources";
 import Menu from "./Menu";
 import CDR from "./CardDrawResources";
+import { names } from "./resources";
 
 const framesPerCardAnimation = 10;
 
@@ -87,7 +88,7 @@ class Drawer {
     constructor(context: CanvasRenderingContext2D, gui: Gui) {
         this.context = context;
         this.gui = gui;
-        this.menu = new Menu(context, this.gui.game);
+        this.menu = new Menu(context, this.gui);
 
         this.cardAnimations = new Map();
         for (let value = 2; value < 15; ++value) {
@@ -248,7 +249,7 @@ class Drawer {
         // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
         this.context.font = `${this.fontSize}px Arial`;
         this.context.textBaseline = "top";
-        this.context.fillStyle = "#88ff88";
+        this.context.fillStyle = scoreTextColor;
         // player 0
         this.context.fillText(`Game: ${this.gui.game.scores[0]}  Hand: ${this.gui.game.hand.getScore(0)}`,
                               5,
@@ -368,17 +369,14 @@ class Drawer {
         const lineCount = winners.length + 1;
         const lineSize = this.fontSize + 2;
 
-        // TODO: get names from somewhere if they are customizable
-        const winnerNames = ["You", "Left", "North", "3 o'Clock"];
-
         const boxHeight = (lineCount + 2) * lineSize;
-        // TODO: max of measure text for all names and "winners" instead of winnerNames[3]
-        const boxWidth = this.context.measureText(winnerNames[3]).width + (2 * lineSize);
+        // TODO: max of measure text for all names and "winners" instead of names[3]
+        const boxWidth = this.context.measureText(names[3]).width + (2 * lineSize);
         const boxX = (this.context.canvas.width - boxWidth) / 2;
         const boxY = (this.context.canvas.height - boxHeight) / 2;
 
         this.context.fillStyle = menuColor;
-        this.context.globalAlpha = 0.5;
+        this.context.globalAlpha = menuAlpha;
         this.context.fillRect(boxX, boxY, boxWidth, boxHeight);
         this.context.globalAlpha = 1;
 
@@ -389,7 +387,7 @@ class Drawer {
 
         this.context.fillText(`winner${(winners.length > 1) ? "s:" : ":"}`, boxX + lineSize, boxY + lineSize);
         winners.forEach((player, index) => {
-            this.context.fillText(winnerNames[player], boxX + lineSize, boxY + ((index + 2) * lineSize));
+            this.context.fillText(names[player], boxX + lineSize, boxY + ((index + 2) * lineSize));
         });
     }
 

@@ -1,6 +1,4 @@
-// TODO: a way to see stats
-
-class StatData {
+export class StatData {
     public gameCount = 0;
     public handCount = 0;
     /** first index is place-1, second index is player */
@@ -54,6 +52,10 @@ class Stats {
         else {
             this.data = new StatData();
         }
+    }
+
+    public get(): StatData {
+        return this.data;
     }
 
     private save() {

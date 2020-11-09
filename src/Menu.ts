@@ -1,8 +1,9 @@
 import { Clickable, RectClickable, CircleClickable } from "./Clickable";
-import { buttonColor, menuColor, menuTextColor } from "./drawResources";
+import { buttonColor, menuAlpha, menuColor, menuTextColor } from "./drawResources";
 import { roundedRect } from "./drawUtil";
-import Game from "./Game";
+import Gui from "./Gui";
 import PrevDrawer from "./PrevDrawer";
+import StatDrawer from "./StatDrawer";
 
 interface regularClickables {
     /** clicking anywhere closes the menu */
@@ -12,6 +13,7 @@ interface regularClickables {
     openMenuButton: Clickable;
     closeMenuButton: Clickable;
     donButton: Clickable;
+    menuItemToggle: Clickable;
 }
 
 class Menu {
@@ -37,8 +39,16 @@ class Menu {
     /** previous trick drawer */
     private ptd: PrevDrawer;
 
-    constructor(private context: CanvasRenderingContext2D, readonly game: Game) {
-        this.ptd = new PrevDrawer(context, game.hand.trickHistory);
+    private statD: StatDrawer;
+
+    /** otherwise showing previous tricks */
+    private showingStats: boolean;
+
+    constructor(private context: CanvasRenderingContext2D, readonly gui: Gui) {
+        this.ptd = new PrevDrawer(context, gui.game.hand.trickHistory);
+        this.statD = new StatDrawer(context, gui.getStatData());
+
+        this.showingStats = false;
 
         this.resize(64);
     }
@@ -62,9 +72,11 @@ class Menu {
     }
 
     public resize(cardWidth: number) {
-        this.fullX = Math.trunc(120 + (cardWidth - 120 + Math.sqrt(Math.pow(cardWidth - 120, 2) + 80)) / 2 + cardWidth);
+        const { width, height, radius, buttonSize, buttonSizeD2, padding, x, y, donHeight, donWidth } = this.menuDrawCalculations();
+        this.fullX = Math.trunc(160 + (cardWidth - 120 + Math.sqrt(Math.pow(cardWidth - 120, 2) + 80)) / 2 + cardWidth * 1.875);
+        // lower cap on x for screen width
+        this.fullX = Math.min(this.fullX, width - (radius * 2) - (padding * 2));
         this.fullY = this.fullX;
-        const { width, height, radius, buttonSize, buttonSizeD2, /* padding, */ x, y, donHeight, donWidth } = this.menuDrawCalculations();
         this.rc = {
             fullscreenCloseMenu: new RectClickable(0, 0, width, height, () => {
                 console.log("clicked outside menu to close menu");
@@ -91,10 +103,14 @@ class Menu {
             }),
             donButton: new RectClickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
                 window.open("https://www.patreon.com/user?u=44765751", "_blank");
+            }),
+            menuItemToggle: new RectClickable(x - this.fullX, y + this.fullY - 40, this.fullX * 2/3, 40, () => {
+                this.showingStats = ! this.showingStats;
             })
         };
 
         this.ptd.resize(this.fullX, this.fullY, x, y);
+        this.statD.resize(this.fullX, this.fullY, x, y);
     }
 
     public draw(clickables: Clickable[]) {
@@ -112,7 +128,7 @@ class Menu {
 
         // menu area and open button
         this.context.fillStyle = menuColor;
-        this.context.globalAlpha = 0.5;
+        this.context.globalAlpha = menuAlpha;
         roundedRect(this.context,
                     x - this.sizeX - radius,
                     y - radius,
@@ -175,15 +191,56 @@ class Menu {
                 this.context.textBaseline = "top";
                 this.context.fillText("Donate", x - buttonWidth * 0.9, y + this.sizeY - buttonHeight * 0.72);
             }
-        
+
+            const iconHeight = proportion * 34;
+            const iconBottomY = y + this.sizeY - proportion * 3;
+            const iconWidth = this.sizeX / 5;
+            // stats button
+            const statsBarWidth = iconWidth / 3;
+            const statsMidX = x - this.sizeX * 5/6;
+            const statsLeftX = statsMidX - statsBarWidth * 1.5;
+            this.context.fillStyle = menuTextColor;  // TODO: maybe try a dark blue?
+            this.context.beginPath();
+            this.context.moveTo(statsLeftX, iconBottomY);
+            this.context.lineTo(statsLeftX, iconBottomY - iconHeight / 3);
+            this.context.lineTo(statsLeftX + statsBarWidth, iconBottomY - iconHeight / 3);
+            this.context.moveTo(statsLeftX + statsBarWidth, iconBottomY);
+            this.context.lineTo(statsLeftX + statsBarWidth, iconBottomY - iconHeight);
+            this.context.lineTo(statsLeftX + statsBarWidth * 2, iconBottomY - iconHeight);
+            this.context.lineTo(statsLeftX + statsBarWidth * 2, iconBottomY);
+            this.context.moveTo(statsLeftX + statsBarWidth * 2, iconBottomY - iconHeight * 2 / 3);
+            this.context.lineTo(statsLeftX + statsBarWidth * 3, iconBottomY - iconHeight * 2 / 3);
+            this.context.lineTo(statsLeftX + statsBarWidth * 3, iconBottomY);
+            this.context.stroke();
+
+            // eye button
+            const eyeMidX = x - this.sizeX / 2;
+            const iconHeightD2 = iconHeight / 2;
+            this.context.beginPath();
+            this.context.ellipse(eyeMidX, iconBottomY - iconHeightD2, iconHeightD2, iconHeightD2, 0, 0, Math.PI * 2);
+            this.context.stroke();
+            this.context.beginPath();
+            this.context.ellipse(eyeMidX, iconBottomY - iconHeightD2, iconHeightD2 / 3, iconHeightD2 / 3, 0, 0, Math.PI * 2);
+            this.context.stroke();
+            this.context.beginPath();
+            this.context.ellipse(eyeMidX, iconBottomY - iconHeightD2, iconWidth / 2, iconHeightD2, 0, 0, Math.PI * 2);
+            this.context.stroke();
+
             if (this.sizeX === this.fullX) {
                 // done opening
                 clickables.push(this.rc.menuOpenBlank);
-
-                this.ptd.draw(clickables);
+                
+                this.context.strokeRect(x - this.sizeX +
+                    (
+                        this.showingStats
+                        ? (this.statD.draw(clickables), 0)
+                        : (this.ptd.draw(clickables), this.sizeX / 3)
+                    ),
+                    y + this.sizeY - 40, this.sizeX / 3, 40);
 
                 clickables.push(this.rc.closeMenuButton);
                 clickables.push(this.rc.donButton);
+                clickables.push(this.rc.menuItemToggle);
             }
         }
     }
