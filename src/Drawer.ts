@@ -103,7 +103,7 @@ class Drawer {
     }
 
     public resize(zoom: number) {
-        this.vertical = this.context.canvas.height > this.context.canvas.width;
+        this.vertical = this.context.canvas.height > this.context.canvas.width * 1.1;
         this.cardWidth = zoom * this.context.canvas.width / (this.vertical ? 5.4 : 10.6 );
         this.cardHeight = this.cardWidth * CDR.assetHeight / CDR.assetWidth;
         console.log("card width set to", this.cardWidth);
