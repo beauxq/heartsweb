@@ -80,10 +80,12 @@ class PrevDrawer extends MenuItemDrawer {
             this.context.lineTo(buttonLeftX, midY + buttonHeightD2);
             this.context.lineTo(buttonLeftX, midY - buttonHeightD2);
             this.context.fill();
-            clickables.push(new RectClickable(buttonLeftX,
-                                          midY - buttonHeightD2,
-                                          buttonWidth,
-                                          buttonHeightD2 * 2,
+            // clickable area is bigger than visible button
+            // (because there's nothing else around worry about clicking)
+            clickables.push(new RectClickable(buttonLeftX - buttonWidth * 0.5,
+                                              midY - buttonHeightD2 * 2,
+                                              buttonWidth * 2,
+                                              buttonHeightD2 * 4,
                                           () => {
                 ++this.current;
                 console.log("next trick button");
@@ -98,10 +100,11 @@ class PrevDrawer extends MenuItemDrawer {
             this.context.lineTo(buttonRightX, midY + buttonHeightD2);
             this.context.lineTo(buttonRightX, midY - buttonHeightD2);
             this.context.fill();
-            clickables.push(new RectClickable(buttonRightX - buttonWidth,
-                                              midY - buttonHeightD2,
-                                              buttonWidth,
-                                              buttonHeightD2 * 2,
+            // bigger same as other button
+            clickables.push(new RectClickable(buttonRightX - buttonWidth * 1.5,
+                                              midY - buttonHeightD2 * 2,
+                                              buttonWidth * 2,
+                                              buttonHeightD2 * 4,
                                               () => {
                 --this.current;
                 console.log("prev trick button");
