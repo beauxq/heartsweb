@@ -4,26 +4,16 @@ import CDR from "./CardDrawResources";
 import { Clickable, RectClickable } from "./Clickable";
 import { buttonColor } from "./drawResources";
 import { roundedRect } from "./drawUtil";
+import MenuItemDrawer from "./MenuItemDrawer";
 
 /** previous trick drawer */
-class PrevDrawer {
+class PrevDrawer extends MenuItemDrawer {
     private current = -1;
     private prevLength = 0;  // know when length of trick history changes
-    
-    private menuWidth: number = 128;
-    private menuHeight: number = 128;
-    private menuRightX: number = 295;
-    private menuTopY: number = 25;
 
-    constructor(private context: CanvasRenderingContext2D) {
-
-    }
-
-    public resize(menuWidth: number, menuHeight: number, menuRightX: number, menuTopY: number) {
-        this.menuWidth = menuWidth;
-        this.menuHeight = menuHeight;
-        this.menuRightX = menuRightX;
-        this.menuTopY = menuTopY;
+    constructor(context: CanvasRenderingContext2D,
+                private readonly trickHistory: readonly TrickRecord[]) {
+        super(context);
     }
 
     private get cardWidth() {
@@ -51,12 +41,12 @@ class PrevDrawer {
     }
 
     /** 4 cards and 2 buttons (forward and backward) */
-    draw(trickHistory: readonly TrickRecord[], clickables: Clickable[]) {
-        if (this.prevLength !== trickHistory.length) {
-            this.prevLength = trickHistory.length;
-            this.current = trickHistory.length - 1;
+    draw(clickables: Clickable[]) {
+        if (this.prevLength !== this.trickHistory.length) {
+            this.prevLength = this.trickHistory.length;
+            this.current = this.trickHistory.length - 1;
         }
-        const thisTrick = trickHistory[this.current];
+        const thisTrick = this.trickHistory[this.current];
         if (thisTrick) {
             const cardWidth = this.cardWidth;
             const cardHeight = cardWidth / CDR.assetWidth * CDR.assetHeight;
@@ -81,7 +71,7 @@ class PrevDrawer {
         const midY = this.menuTopY + this.menuHeight / 3;
         const buttonWidth = 25;
         const buttonHeightD2 = 20;
-        if (this.current < trickHistory.length - 1) {
+        if (this.current < this.trickHistory.length - 1) {
             // next button
             const buttonLeftX = this.menuRightX - buttonWidth;
             this.context.fillStyle = buttonColor;
@@ -109,10 +99,10 @@ class PrevDrawer {
             this.context.lineTo(buttonRightX, midY - buttonHeightD2);
             this.context.fill();
             clickables.push(new RectClickable(buttonRightX - buttonWidth,
-                                          midY - buttonHeightD2,
-                                          buttonWidth,
-                                          buttonHeightD2 * 2,
-                                          () => {
+                                              midY - buttonHeightD2,
+                                              buttonWidth,
+                                              buttonHeightD2 * 2,
+                                              () => {
                 --this.current;
                 console.log("prev trick button");
             }));

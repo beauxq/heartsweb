@@ -1,7 +1,7 @@
 import { Clickable, RectClickable, CircleClickable } from "./Clickable";
 import { buttonColor, menuColor, menuTextColor } from "./drawResources";
 import { roundedRect } from "./drawUtil";
-import { TrickRecord } from "./GameHand";
+import Game from "./Game";
 import PrevDrawer from "./PrevDrawer";
 
 interface regularClickables {
@@ -37,8 +37,8 @@ class Menu {
     /** previous trick drawer */
     private ptd: PrevDrawer;
 
-    constructor(private context: CanvasRenderingContext2D) {
-        this.ptd = new PrevDrawer(context);
+    constructor(private context: CanvasRenderingContext2D, readonly game: Game) {
+        this.ptd = new PrevDrawer(context, game.hand.trickHistory);
 
         this.resize(64);
     }
@@ -97,7 +97,7 @@ class Menu {
         this.ptd.resize(this.fullX, this.fullY, x, y);
     }
 
-    public draw(trickHistory: readonly TrickRecord[], clickables: Clickable[]) {
+    public draw(clickables: Clickable[]) {
         const { /* width, height, */ radius, /* buttonSize, */ buttonSizeD2, padding, x, y, donHeight, donWidth } = this.menuDrawCalculations();
         // animation update
         if (this.opened) {
@@ -180,7 +180,7 @@ class Menu {
                 // done opening
                 clickables.push(this.rc.menuOpenBlank);
 
-                this.ptd.draw(trickHistory, clickables);
+                this.ptd.draw(clickables);
 
                 clickables.push(this.rc.closeMenuButton);
                 clickables.push(this.rc.donButton);

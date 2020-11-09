@@ -87,7 +87,7 @@ class Drawer {
     constructor(context: CanvasRenderingContext2D, gui: Gui) {
         this.context = context;
         this.gui = gui;
-        this.menu = new Menu(context);
+        this.menu = new Menu(context, this.gui.game);
 
         this.cardAnimations = new Map();
         for (let value = 2; value < 15; ++value) {
@@ -399,7 +399,7 @@ class Drawer {
     }
 
     public drawMenu() {
-        this.menu.draw(this.gui.game.hand.trickHistory, this.gui.clickables);  // ref to clickables array to we can put stuff in it
+        this.menu.draw(this.gui.clickables);  // ref to clickables array so we can put stuff in it
     }
 }
 

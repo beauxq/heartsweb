@@ -22,8 +22,8 @@ class Gui implements HandObserver {
 
     public clickables: Clickable[] = [];
 
-    public game: Game = new Game();
-    private ais: (AI|null)[] = [];
+    public game!: Game;  // assigned in restore method - TODO: remove these ! when tsc fixes this problem https://github.com/microsoft/TypeScript/issues/30462
+    private ais!: (AI|null)[];  // assigned in restore method
 
     public cardsToPass: CardGroup = new CardGroup();
     private humanPlayerPassed: boolean = false;
@@ -69,7 +69,6 @@ class Gui implements HandObserver {
 
     constructor(context: CanvasRenderingContext2D, storage: Storage) {
         this.storage = storage;
-        this.drawer = new Drawer(context, this);
         this.stats = new Stats(storage);
 
         // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
@@ -81,6 +80,10 @@ class Gui implements HandObserver {
         });
 
         this.restore();
+
+        this.drawer = new Drawer(context, this);
+        this.drawer.setAiCards();
+
         setInterval(() => { this.draw(); }, 40);
     }
 
@@ -117,9 +120,9 @@ class Gui implements HandObserver {
                 new AI(ais[2]),
                 new AI(ais[3])
             ];
-            (this.ais[1] as AI).setHand(this.game.hand);
-            (this.ais[2] as AI).setHand(this.game.hand);
-            (this.ais[3] as AI).setHand(this.game.hand);
+            this.ais[1]!.setHand(this.game.hand);
+            this.ais[2]!.setHand(this.game.hand);
+            this.ais[3]!.setHand(this.game.hand);
         }
         else {
             this.game = new Game();
@@ -132,7 +135,7 @@ class Gui implements HandObserver {
         }
 
         for (let player = 1; player < 4; ++player) {
-            this.game.hand.registerObserver(this.ais[player] as AI);
+            this.game.hand.registerObserver(this.ais[player]!);
         }
         this.game.hand.registerObserver(this);
 
@@ -140,7 +143,6 @@ class Gui implements HandObserver {
             this.game.reset();
             this.game.hand.resetHand(this.game.getPassingDirection());
         }
-        this.drawer.setAiCards();
     }
 
     /**
