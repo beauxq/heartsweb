@@ -56,7 +56,7 @@ class Menu {
     private menuDrawCalculations() {
         const width = this.context.canvas.width;
         const height = this.context.canvas.height;
-        const radius = 20;
+        const radius = 20;  // size of the menu button when the menu is closed
         /** length of square with same area as circle with radius ^ */
         const buttonSize = Math.sqrt(Math.PI) * radius;
         /** `buttonSize / 2` */
@@ -217,6 +217,9 @@ class Menu {
             const eyeMidX = x - this.sizeX / 2;
             const iconHeightD2 = iconHeight / 2;
             this.context.beginPath();
+            // DOMException could say an ellipse radius is negative
+            // if width of window is less than 50
+            // - not worth worrying about
             this.context.ellipse(eyeMidX, iconBottomY - iconHeightD2, iconHeightD2, iconHeightD2, 0, 0, Math.PI * 2);
             this.context.stroke();
             this.context.beginPath();
