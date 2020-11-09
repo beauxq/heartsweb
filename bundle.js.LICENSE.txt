@@ -4,6 +4,12 @@
 
 /*! CommonJS bailout: this is used directly at 2:23-27 */
 
+/*! export CircleClickable [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export RectClickable [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export StatData [provided] [no usage info] [missing usage info prevents renaming] */
+
 /*! export __esModule [provided] [no usage info] [missing usage info prevents renaming] */
 
 /*! export background [provided] [no usage info] [missing usage info prevents renaming] */
@@ -12,9 +18,17 @@
 
 /*! export default [provided] [no usage info] [missing usage info prevents renaming] */
 
+/*! export menuAlpha [provided] [no usage info] [missing usage info prevents renaming] */
+
 /*! export menuColor [provided] [no usage info] [missing usage info prevents renaming] */
 
 /*! export menuTextColor [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export names [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export roundedRect [provided] [no usage info] [missing usage info prevents renaming] */
+
+/*! export scoreTextColor [provided] [no usage info] [missing usage info prevents renaming] */
 
 /*! flagged exports */
 
@@ -66,6 +80,10 @@
   !*** ./build/GameHand.js ***!
   \***************************/
 
+/*!***************************!*\
+  !*** ./build/drawUtil.js ***!
+  \***************************/
+
 /*!****************************!*\
   !*** ./build/CardGroup.js ***!
   \****************************/
@@ -74,13 +92,25 @@
   !*** ./build/Clickable.js ***!
   \****************************/
 
+/*!****************************!*\
+  !*** ./build/resources.js ***!
+  \****************************/
+
 /*!*****************************!*\
   !*** ./build/PrevDrawer.js ***!
+  \*****************************/
+
+/*!*****************************!*\
+  !*** ./build/StatDrawer.js ***!
   \*****************************/
 
 /*!********************************!*\
   !*** ./build/drawResources.js ***!
   \********************************/
+
+/*!*********************************!*\
+  !*** ./build/MenuItemDrawer.js ***!
+  \*********************************/
 
 /*!************************************!*\
   !*** ./build/CardDrawResources.js ***!
