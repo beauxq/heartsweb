@@ -80,7 +80,7 @@ class Drawer {
 
     private gui: Gui;
 
-    private menu: Menu;
+    public menu: Menu;
 
     /** key is Card.hash() */
     private cardAnimations: Map<number, CardAnimation>;

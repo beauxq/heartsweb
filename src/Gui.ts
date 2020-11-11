@@ -379,8 +379,9 @@ class Gui implements HandObserver {
                         });
                     }
                     else {  // game not over
-                        // wait for animation of cards going away
-                        this.drawWait(0.5, true, false).then(() => {
+                        // if menu opened, don't move to next hand
+                        // else, wait for animation of cards going away
+                        this.drawWait(this.drawer.menu.opened ? 1000000 : 0.5, true, false).then(() => {
                             this.game.hand.resetHand(this.game.getPassingDirection());
                         });
                     }
