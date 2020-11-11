@@ -84,29 +84,29 @@ class Menu {
                 if (this.sizeX === this.fullX) {  // open
                     this.randomizeMenuButtonLines();
                 }
-            }),
+            }, true),
             menuOpenBlank: new RectClickable(x - this.fullX - buttonSizeD2, y - buttonSizeD2, this.fullX + buttonSize, this.fullY + buttonSize, () => {
                 // nothing - just cancelling the full screen clickable
-            }),
+            }, true),
             openMenuButton: new CircleClickable(x, y, radius, () => {
                 this.opened = true;
                 if (this.sizeX === 0) {  // closed
                     this.randomizeMenuButtonLines();
                 }
-            }),
+            }, true),
             closeMenuButton: new CircleClickable(x, y, radius, () => {
                 console.log("clicked close button to close menu");
                 this.opened = false;
                 if (this.sizeX === this.fullX) {  // open
                     this.randomizeMenuButtonLines();
                 }
-            }),
+            }, true),
             donButton: new RectClickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
                 window.open("https://www.patreon.com/user?u=44765751", "_blank");
-            }),
+            }, true),
             menuItemToggle: new RectClickable(x - this.fullX, y + this.fullY - 40, this.fullX * 2/3, 40, () => {
                 this.showingStats = ! this.showingStats;
-            })
+            }, true)
         };
 
         this.ptd.resize(this.fullX, this.fullY, x, y);

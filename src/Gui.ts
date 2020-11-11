@@ -225,18 +225,28 @@ class Gui implements HandObserver {
 
     public click(e: MouseEvent) {
         console.log("gui click: ", e.x, e.y);
-        if (this.waiter.click()) {
-            return;
-        }
 
         // have to go through clickables backwards
         // because the one that is drawn last is on top and thus has priority for click
         for (let i = this.clickables.length - 1; i >= 0; --i) {
             if (this.clickables[i].contains(e.x, e.y)) {
-                this.clickables[i].onClick();
-                break;  // only click on one thing at a time
+                // found an object under click
+                if (this.clickables[i].allowedWhileWaiting) {
+                    return this.clickables[i].onClick();
+                    // this click doesn't skip waiter
+                }
+                else {  // not allowed while waiting
+                    if (this.waiter.click()) {
+                        return;
+                    }
+                    // else not waiting
+                    return this.clickables[i].onClick();
+                }
+                // break;  // only click on one thing at a time
             }
         }
+        // nothing to click on
+        this.waiter.click();
     }
 
     private handleMessage(messageData: any) {

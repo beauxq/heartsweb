@@ -2,8 +2,9 @@
  *  and run an onClick function
  */
 export interface Clickable {
-    readonly onClick: Function;
+    readonly onClick: () => void;
     contains(x: number, y:number): boolean;
+    allowedWhileWaiting: boolean;
 }
 
 /** a rectangle location and size,
@@ -14,14 +15,16 @@ export class RectClickable implements Clickable {
     public readonly y: number;
     public readonly w: number;
     public readonly h: number;
-    public readonly onClick: Function;
+    public readonly onClick: () => void;
+    public readonly allowedWhileWaiting: boolean;
 
-    constructor(x: number, y: number, w: number, h: number, onClick: Function) {
+    constructor(x: number, y: number, w: number, h: number, onClick: () => void, allowedWhileWaiting: boolean=false) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.onClick = onClick;
+        this.allowedWhileWaiting = allowedWhileWaiting;
     }
 
     public contains(x: number, y:number): boolean {
@@ -36,13 +39,15 @@ export class CircleClickable implements Clickable {
     public readonly x: number;
     public readonly y: number;
     public readonly r: number;
-    public readonly onClick: Function;
+    public readonly onClick: () => void;
+    public readonly allowedWhileWaiting: boolean;
 
-    constructor(x: number, y: number, r: number, onClick: Function) {
+    constructor(x: number, y: number, r: number, onClick: () => void, allowedWhileWaiting: boolean=false) {
         this.x = x;
         this.y = y;
         this.r = r;
         this.onClick = onClick;
+        this.allowedWhileWaiting = allowedWhileWaiting;
     }
 
     public contains(x: number, y:number): boolean {
