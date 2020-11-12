@@ -7,6 +7,7 @@ import { Clickable } from "./Clickable";
 import Waiter from "./Waiter";
 import Drawer from "./Drawer";
 import Stats from "./Stats";
+import { cardCodes, suitCodes } from "./keyCodes";
 
 /*
 function workerFunction() {
@@ -38,6 +39,9 @@ class Gui implements HandObserver {
     private storage: Storage;
 
     private stats: Stats;
+
+    /** last key pressed on the keyboard */
+    private lastKey: string = "";
 
     public getStatData() {
         return this.stats.get();
@@ -223,14 +227,18 @@ class Gui implements HandObserver {
         this.drawer.drawMenu();
     }
 
-    public click(e: MouseEvent) {
-        console.log("gui click: ", e.x, e.y);
+    public click(eventOrCode: MouseEvent | string) {
+        // console.log("gui click: ", eventOrCode);
 
         // have to go through clickables backwards
         // because the one that is drawn last is on top and thus has priority for click
         for (let i = this.clickables.length - 1; i >= 0; --i) {
-            if (this.clickables[i].contains(e.x, e.y)) {
-                // found an object under click
+            if ((typeof eventOrCode === "string"
+                 && this.clickables[i].codeMatch(eventOrCode))
+             || (eventOrCode instanceof MouseEvent
+                 && this.clickables[i].contains(eventOrCode.x, eventOrCode.y)))
+            {
+                // found an object under click - or code typed
                 if (this.clickables[i].allowedWhileWaiting) {
                     return this.clickables[i].onClick();
                     // this click doesn't skip waiter
@@ -247,6 +255,18 @@ class Gui implements HandObserver {
         }
         // nothing to click on
         this.waiter.click();
+    }
+
+    keyDown(key: string) {
+        console.log("key", key);
+        if (cardCodes.has(this.lastKey) && suitCodes.has(key)) {
+            const cardCode = this.lastKey + key;
+            this.click(cardCode);
+        }
+        else if (key === "p") {
+            this.click(key);
+        }
+        this.lastKey = key;
     }
 
     private handleMessage(messageData: any) {

@@ -1,3 +1,27 @@
+const valueToCode: Map<number, string> = new Map([
+    [2, "2"],
+    [3, "3"],
+    [4, "4"],
+    [5, "5"],
+    [6, "6"],
+    [7, "7"],
+    [8, "8"],
+    [9, "9"],
+    [10, "0"],
+    [11, "j"],
+    [12, "q"],
+    [13, "k"],
+    [14, "a"],
+    [0, ""]
+]);
+
+const suitToCode: Map<number, string> = new Map([
+    [0, "c"],
+    [1, "d"],
+    [2, "s"],
+    [3, "h"]
+]);
+
 class Card {
     public static readonly CLUBS = 0;
     public static readonly DIAMONDS = 1;
@@ -97,6 +121,16 @@ class Card {
 
     public hash() {
         return (this.value << 2) + this.suit;
+    }
+
+    public code() {
+        const v = valueToCode.get(this.value);
+        const s = suitToCode.get(this.suit);
+        if (! (v && s)) {
+            console.error("ERROR: failed to get a code from card", this);
+            return "";
+        }
+        return v + s;
     }
 }
 

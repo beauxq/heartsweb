@@ -9,6 +9,7 @@ const gui = new Gui(canvas.getContext('2d') as CanvasRenderingContext2D,
 // resize the canvas to fill browser window dynamically
 window.addEventListener('resize', resizeCanvas, false);
 canvas.addEventListener('click', click, false);
+window.addEventListener('keydown', keyDown, false);
 
 function resizeCanvas() {
     console.log(`browserZoomLevel: ${window.devicePixelRatio}`);
@@ -60,6 +61,10 @@ window.onorientationchange = function() {
 
 function click(e: MouseEvent) {
     gui.click(e);
+}
+
+function keyDown(e: KeyboardEvent) {
+    gui.keyDown(e.key);
 }
 
 async function installServiceWorkerAsync() {

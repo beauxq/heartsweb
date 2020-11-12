@@ -89,7 +89,7 @@ class PrevDrawer extends MenuItemDrawer {
                                           () => {
                 ++this.current;
                 console.log("next trick button");
-            }, true));
+            }, { allowedWhileWaiting: true }));
         }
         if (this.current > 0) {
             // prev button
@@ -108,7 +108,7 @@ class PrevDrawer extends MenuItemDrawer {
                                               () => {
                 --this.current;
                 console.log("prev trick button");
-            }, true));
+            }, { allowedWhileWaiting: true }));
         }
     }
 }

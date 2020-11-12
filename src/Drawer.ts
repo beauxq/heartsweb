@@ -233,7 +233,8 @@ class Drawer {
                             (cardSpaceWidth * indexInRow);  // plus the width of the cards we've already drawn in this row
                     this.drawCard(cardAndIndex.card, x, rowY);
                     this.gui.clickables.push(new RectClickable(x, rowY, this.cardWidth, this.cardHeight,
-                                                               () => { cardClick(cardAndIndex.card); }));
+                                                               () => { cardClick(cardAndIndex.card); },
+                                                               { code: cardAndIndex.card.code() }));
                 }
             });
             rowY += this.cardHeight + Drawer.verticalPadding;
@@ -276,7 +277,8 @@ class Drawer {
         this.gui.cardsToPass.forEach((card) => {
             this.drawCard(card, x, rowY);
             this.gui.clickables.push(new RectClickable(x, rowY, this.cardWidth, this.cardHeight,
-                                                       () => { this.gui.removeFromPass(card); }));
+                                                       () => { this.gui.removeFromPass(card); },
+                                                       { code: card.code() }));
             x += this.cardWidth + 10;
         });
     }
@@ -362,7 +364,8 @@ class Drawer {
         
         this.drawArrow(x, y, size, this.gui.game.getPassingDirection() + 1, opaque);
         this.gui.clickables.push(new RectClickable(x, y, size, size,
-                                                   () => { this.gui.passButtonClick(); }));
+                                                   () => { this.gui.passButtonClick(); },
+                                                   { code: "p" }));
     }
 
     public drawEnd(winners: number[]) {
