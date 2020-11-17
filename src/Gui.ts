@@ -210,7 +210,7 @@ class Gui implements HandObserver {
             this.drawer.drawHand((card: Card) => { console.log(`clicked on card ${card.str()} when human already passed`); });
         }
         else if (this.showingPassedCards) {
-            console.log("got draw in showing passed cards, length:", this.cardsToPass.length());
+            console.debug("got draw in showing passed cards, length:", this.cardsToPass.length());
             this.drawer.drawHand((card: Card) => { console.log(`clicked card ${card.str()} while showing passed, but you shouldn't see this because click goes to skipping timer`); });
             this.drawer.drawCardsToPass();
         }

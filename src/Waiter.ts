@@ -55,7 +55,7 @@ class Waiter {
     }
 
     private checkFinish() {
-        console.log("checking for wait finish")
+        console.debug("checking for wait finish")
         if (this.waiting &&
             ((! this.waitingTime) && ((! this.needMessage) || this.haveMessage))
         ) {
