@@ -37,9 +37,11 @@ class Stats {
     private storage: Storage;
     private data: StatData = new StatData();
     private queenWho: number = -1;
+    private lastRequestedPersist: number;
 
     constructor(storage: Storage) {
         this.storage = storage;
+        this.lastRequestedPersist = Date.now() - 1001 * 60 * 60;
 
         this.init();
     }
@@ -58,8 +60,22 @@ class Stats {
         return this.data;
     }
 
-    private save() {
+    private async save() {
         this.storage.setItem("statData", JSON.stringify(this.data));
+        
+        // https://web.dev/persistent-storage/
+        const now = Date.now();
+        console.debug("persisted:", navigator.storage.persisted());
+        console.debug("time req:", now > this.lastRequestedPersist + 3600000);
+        if (navigator.storage
+         && navigator.storage.persist
+         && now > this.lastRequestedPersist + 3600000
+         && (! await navigator.storage.persisted())) {
+            console.debug("requesting persist permission");
+            const isPersisted = await navigator.storage.persist()
+            this.lastRequestedPersist = now;
+            console.log(`persist storage granted: ${isPersisted}`);
+        }
     }
 
     public queen(who: number) {
