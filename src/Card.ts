@@ -1,4 +1,4 @@
-const valueToCode: Map<number, string> = new Map([
+const valueToCode: ReadonlyMap<number, string> = new Map([
     [2, "2"],
     [3, "3"],
     [4, "4"],
@@ -15,7 +15,7 @@ const valueToCode: Map<number, string> = new Map([
     [0, ""]
 ]);
 
-const suitToCode: Map<number, string> = new Map([
+const suitToCode: ReadonlyMap<number, string> = new Map([
     [0, "c"],
     [1, "d"],
     [2, "s"],
@@ -76,7 +76,7 @@ class Card {
         }
     }
 
-    public str() {
+    public str(): string {
         let to_return: string;
         switch (this.value)
         {
@@ -119,11 +119,11 @@ class Card {
         return to_return;
     }
 
-    public hash() {
+    public hash(): number {
         return (this.value << 2) + this.suit;
     }
 
-    public code() {
+    public code(): string {
         const v = valueToCode.get(this.value);
         const s = suitToCode.get(this.suit);
         if (! (v && s)) {
