@@ -144,6 +144,7 @@ class CardGroup {
 
     /**
      * fill with 52 cards
+     *  - ace is high
      */
     public fill() {
         this.cards.forEach((suitArray, suitNumber) => {

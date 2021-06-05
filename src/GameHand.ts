@@ -15,10 +15,12 @@ export interface TrickRecord {
  * resetHand();
  * dealHands();
  * pass(fromPlayer, toPlayer, passedCards);
- * receivePassedCards();  // TODO: return which cards (for UI)
- * resetTrick();
- * playCard(card);  // TODO: return hearts broken (for UI)
- * endTrick();  // TODO: returns who took the trick? (for UI)
+ * receivePassedCards();
+ * 13 times:
+ *     resetTrick();
+ *     4 times:
+ *         playCard(card);
+ *     endTrick();
  * endHand();  // returns who shot the moon
  * ```
  */
@@ -128,6 +130,12 @@ class GameHand {
         return this.passCount;
     }
 
+    /**
+     * changes with `GameHand.resetTrick()`
+     * 
+     * Between `endTrick` and `resetTrick`, this returns the same cards as `getPreviousTrick`
+     * @returns array of 4 played cards
+     */
     public getPlayedCards(): readonly Card[] {
         return this.playedCards;
     }
@@ -244,6 +252,7 @@ class GameHand {
                 card.value > this.playedCards[this.trickLeader].value);
     }
 
+    // TODO: return hearts broken (for UI)
     public playCard(card: Card) {
         // console.log("playing card on turn:", this.whoseTurn);
         this.hands[this.whoseTurn].remove(card);
