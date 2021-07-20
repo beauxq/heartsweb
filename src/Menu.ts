@@ -102,7 +102,7 @@ class Menu {
                 }
             }, { allowedWhileWaiting: true }),
             donButton: new RectClickable(x - donWidth, y + this.fullY -donHeight, donWidth, donHeight, () => {
-                window.open("https://www.patreon.com/user?u=44765751", "_blank");
+                window.open("https://ko-fi.com/beauxq", "_blank");
             }, { allowedWhileWaiting: true }),
             menuItemToggle: new RectClickable(x - this.fullX, y + this.fullY - 40, this.fullX * 2/3, 40, () => {
                 this.showingStats = ! this.showingStats;
