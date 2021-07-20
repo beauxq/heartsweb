@@ -79,6 +79,11 @@ class Gui implements HandObserver {
         this.storage = storage;
         this.stats = new Stats(storage);
 
+        if (! Worker) {
+            alert("You need a better web browser to use this app.");
+            throw new Error("web worker not supported");
+        }
+
         // this.worker = new Worker(URL.createObjectURL(new Blob(["("+workerFunction.toString()+")()"], {type: 'text/javascript'})));
         this.worker = new Worker("workerbundle.js");
         this.worker.addEventListener('message', (message) => {
