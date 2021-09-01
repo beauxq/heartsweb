@@ -254,7 +254,7 @@ class Drawer {
         // player 0
         this.context.fillText(`Game: ${this.gui.game.scores[0]}  Hand: ${this.gui.game.hand.getScore(0)}`,
                               5,
-                              this.yForBottomMiddle() + (this.cardHeight + Drawer.verticalPadding));
+                              this.yForMyScore());
         // player 1
         this.drawPlayerScore(1, 5, this.context.canvas.height / 4);
         // player 2
@@ -262,6 +262,10 @@ class Drawer {
         // player 3
         const w = this.context.measureText("Game: 100").width;
         this.drawPlayerScore(3, this.context.canvas.width - (w + 5), this.context.canvas.height / 3);
+    }
+
+    private yForMyScore(): number {
+        return this.yForBottomMiddle() + (this.cardHeight + Drawer.verticalPadding);
     }
 
     private yForBottomMiddle() {
@@ -401,6 +405,42 @@ class Drawer {
 
     public drawMenu() {
         this.menu.draw(this.gui.clickables);  // ref to clickables array so we can put stuff in it
+    }
+
+    public drawRule(ruleText: string, time: number) {
+        const timeSinceRule = Date.now() - time;
+        if (timeSinceRule < 8000) {
+            // TODO: optimization: figure out why putting these (font and baseline) in Drawer constructor doesn't work
+            this.context.font = `${this.fontSize}px Arial`;
+            this.context.textBaseline = "top";
+            this.context.fillStyle = scoreTextColor;
+            this.context.globalAlpha = timeSinceRule < 4000 ? 1 : (8000 - timeSinceRule) / 4000;
+
+            const w = this.context.canvas.width;
+            const y = this.yForMyScore();
+
+            const scoreWidth = this.context.measureText("Game: 100  Hand: 100").width + 5;
+            const x = w - (this.context.measureText(ruleText).width + 5);
+            if (x < scoreWidth) {
+                // split ruleText on space closest to middle
+                const splitIndex = ruleText.indexOf(" ", Math.floor(ruleText.length / 2));
+                const topLine = ruleText.substring(0, splitIndex);
+                const botLine = ruleText.substring(splitIndex + 1);
+                const topX = w - (this.context.measureText(topLine).width + 5);
+                const botX = w - (this.context.measureText(botLine).width + 5);
+                // top line need shadow in case it's over a card
+                this.context.fillStyle = background;
+                this.context.fillText(topLine, topX + 1, y + 1 - this.fontSize);
+                this.context.fillStyle = scoreTextColor;
+                this.context.fillText(topLine, topX, y - this.fontSize);
+                this.context.fillText(botLine, botX, y);
+            }
+            else {  // fits on one line
+                this.context.fillText(ruleText, x, y);
+            }
+
+            this.context.globalAlpha = 1;
+        }
     }
 }
 

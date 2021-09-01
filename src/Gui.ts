@@ -43,6 +43,9 @@ class Gui implements HandObserver {
     /** last key pressed on the keyboard */
     private lastKey: string = "";
 
+    private ruleString: string;
+    private ruleTime: number;
+
     public getStatData() {
         return this.stats.get();
     }
@@ -96,6 +99,9 @@ class Gui implements HandObserver {
 
         this.drawer = new Drawer(context, this);
         this.drawer.setAiCards();
+
+        this.ruleString = "";
+        this.ruleTime = 0;
 
         setInterval(() => { this.draw(); }, 40);
     }
@@ -168,6 +174,10 @@ class Gui implements HandObserver {
             this.cardsToPass.insert(card);
             console.log("number of cards to pass", this.cardsToPass.length());
         }
+        else {  // already chose 3 cards
+            this.ruleString = "click the arrow to pass 3 cards";
+            this.ruleTime = Date.now();
+        }
     }
 
     public removeFromPass(card: Card) {
@@ -188,10 +198,18 @@ class Gui implements HandObserver {
         ) {
             this.game.hand.playCard(card);
         }
+        else {  // invalid card clicked
+            this.ruleString = this.game.hand.findValidChoicesString();
+            this.ruleTime = Date.now();
+        }
     }
 
     public passButtonClick() {
-        if (! (this.cardsToPass.length() > 2)) { return; }
+        if (! (this.cardsToPass.length() > 2)) {
+            this.ruleString = "choose 3 cards to pass";
+            this.ruleTime = Date.now();
+            return;
+        }
         this.humanPlayerPassed = true;
         const passingCards = this.cardsToPass.slice();
         this.cardsToPass.clear();
@@ -228,6 +246,8 @@ class Gui implements HandObserver {
             this.drawer.drawPlayedCards();
             this.drawer.drawPreviousTrick();
         }
+
+        this.drawer.drawRule(this.ruleString, this.ruleTime);
 
         this.drawer.drawMenu();
     }

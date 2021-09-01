@@ -365,7 +365,6 @@ class GameHand {
         return -2;
     }
 
-
     // rules of the game
     public findValidChoices(): readonly Card[] {
         const hand = this.hands[this.whoseTurn];
@@ -415,6 +414,63 @@ class GameHand {
                 }
                 // don't have matching suit
                 return hand.slice();
+            }
+        }
+    }
+
+    // same as `findValidChoices` except returns a string to tell the player what is valid
+    // This might look like the problem of duplicated code,
+    // but it's important for `findValidChoices` to be optimized
+    // so nothing extra there
+    /** return string telling the rule that applies to current play */
+    public findValidChoicesString(): string {
+        const sameSuit = "must match suit of the first card";
+        const twoClubs = "2 of Clubs is played first";
+        const noPoints = "no points allowed in first trick";
+        const anyCards = "play any card";
+        const notBroke = "can't start with hearts before hearts has been played";
+
+        const hand = this.hands[this.whoseTurn];
+        if (hand.length() === 13) {  // first trick
+            if (this.playedCardCount === 0) {  // first player
+                return twoClubs;
+            }
+            // not first player
+            if (hand.length(Card.CLUBS)) {
+                return sameSuit;
+            }
+            else {  // no clubs
+                const validChoices: Card[] = [];
+                hand.forEach((card) => {
+                    if (! this.pointsFor(card)) {
+                        validChoices.push(card);
+                    }
+                });
+                if (validChoices.length) {
+                    return noPoints;
+                }
+                // only points in hand
+                return anyCards;
+            }
+        }
+        else {  // not first trick
+            if (this.playedCardCount === 0) {  // leading trick
+                if (this.heartsBroken) {
+                    return anyCards;
+                }
+                // hearts not broken
+                if (hand.length(Card.HEARTS) === hand.length()) {  // only hearts in hand
+                    return anyCards;
+                }
+                // non-hearts in hand, play anything not hearts
+                return notBroke;
+            }
+            else {  // not leading trick
+                if (hand.length(this.playedCards[this.trickLeader].suit)) {  // have suit that is lead
+                    return sameSuit;
+                }
+                // don't have matching suit
+                return anyCards;
             }
         }
     }

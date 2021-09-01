@@ -68,6 +68,7 @@ class Stats {
         console.debug("persisted:", navigator.storage.persisted());
         console.debug("time req:", now > this.lastRequestedPersist + 3600000);
         if (navigator.storage
+         // @ts-ignore
          && navigator.storage.persist
          && now > this.lastRequestedPersist + 3600000
          && (! await navigator.storage.persisted())) {
