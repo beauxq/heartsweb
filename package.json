@@ -12,7 +12,7 @@
     "url": "git+https://github.com/beauxq/heartsweb.git"
   },
   "author": "beauxq",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/beauxq/heartsweb/issues"
   },
